@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>密度計算器</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-family: sans-serif;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .totalDensity {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .rightAlign {
+            text-align: right;
+        }
+        .totalDensityContainer {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border: 1px solid #ccc;
+            padding: 5px;
+            width: calc(100% - 10px); 
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px; 
+        }
+    </style>
+</head>
+<body>
+
+    <h2>密度計算器</h2>
+
+    <div class="grid-container">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>材質</th>
+                    <th>密度 (g/cm³)</th>
+                    <th>比例 (%)</th>
+                    <th>實際比例 (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>PP三色</td>
+                    <td>0.925</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td> 
+                </tr>
+                <tr>
+                    <td>中空板</td>
+                    <td>0.925</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>材質</th>
+                    <th>密度 (g/cm³)</th>
+                    <th>比例 (%)</th>
+                    <th>實際比例 (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>PP什色瓶蓋</td>
+                    <td>0.950</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+                <tr>
+                    <td>PP保險桿</td>
+                    <td>0.960</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>材質</th>
+                    <th>密度 (g/cm³)</th>
+                    <th>比例 (%)</th>
+                    <th>實際比例 (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>PP保險桿+石粉</td>
+                    <td>1.050</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="totalDensityContainer"> 
+        <span colspan="4" style="text-align: right;">總計密度: <span class="totalDensity">0</span></span>
+    </div>
+
+    <script>
+ function calculateDensities() {
+  var totalDensity = 0;
+  var totalProportion = 0;
+  var tables = document.querySelectorAll("table"); 
+
+  // 循环处理每个表格，计算总比例
+  for (var tableIndex = 0; tableIndex < tables.length; tableIndex++) {
+    var table = tables[tableIndex];
+    var rows = table.querySelectorAll("tr");
+
+    for (var i = 1; i < rows.length; i++) {
+      var proportionInput = rows[i].querySelectorAll("td")[2].querySelector("input");
+      var proportion = parseFloat(proportionInput.value);
+      if (!isNaN(proportion)) {
+        totalProportion += proportion;
+      }
+    }
+  }
+
+  // 循环处理每个表格，计算密度和实际比例
+  for (var tableIndex = 0; tableIndex < tables.length; tableIndex++) {
+    var table = tables[tableIndex];
+    var rows = table.querySelectorAll("tr");
+
+    for (var i = 1; i < rows.length; i++) {
+      var cells = rows[i].querySelectorAll("td");
+      var density = parseFloat(cells[1].textContent);
+      var proportionInput = cells[2].querySelector("input");
+      var proportion = parseFloat(proportionInput.value);
+      var actualProportionCell = cells[3];
+
+      if (isNaN(proportion)) {
+        proportion = 0;
+        proportionInput.value = 0;
+      }
+
+      if (totalProportion === 0) {
+        calculatedDensity = density;
+        actualProportion = 0;
+      } else {
+        calculatedDensity = density; // 使用原始密度
+        actualProportion = (proportion / totalProportion) * 100; // 使用总比例计算
+      }
+
+      totalDensity += calculatedDensity * (proportion / totalProportion); // 根据实际比例累計总计密度
+      actualProportionCell.textContent = actualProportion.toFixed(2); 
+    }
+  }
+
+  document.querySelector(".totalDensity").textContent = totalDensity.toFixed(3); 
+}
+    </script>
+
+</body>
+</html>
