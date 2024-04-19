@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>耐衝計算</title>
+  <style>
+    /* 可選：添加一些樣式 */
+  </style>
+</head>
+<body>
+
+  <h2>耐衝計算</h2>
+
+  <label for="inputField">請輸入一個值：</label>
+  <input type="number" id="inputField" onkeydown="if(event.keyCode===13) calculate()"> 
+
+  <p>舊耐衝(kg-cm)：<span id="resultParagraph1"></span></p>
+  <p>新耐衝(kg-cm/cm)：<span id="resultParagraph2"></span></p> 
+  <p>新耐衝(kg-cm/cm^2)：<span id="resultParagraph3"></span></p>
+
+  <script>
+    // 對照表數據
+    const lookupTable = {
+      9.81: 120,
+      9.41: 121,
+      9.01: 122,
+      8.62: 123,
+      8.24: 124,
+      7.84: 125,
+      7.46: 126,
+      7.08: 127,
+      6.71: 128,
+      6.35: 129,
+      5.99: 130,
+      5.63: 131,
+      5.28: 132,
+      4.93: 133,
+      4.59: 134,
+      4.26: 135,
+      3.93: 136,
+      3.61: 137,
+      3.29: 138,
+      2.98: 139,
+      2.68: 140,
+      2.38: 141,
+      2.09: 142,
+      1.81: 143,
+      1.53: 144,
+      1.26: 145,
+      0.99: 146,
+      0.73: 147,
+      0.48: 148,
+      0.24: 149,
+      0.00: 150
+    };
+
+    function findClosestKey(value) {
+      let minDiff = Infinity;
+      let closestKey = null;
+      for (const key in lookupTable) {
+        const diff = Math.abs(key - value);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestKey = key;
+        }
+      }
+      return closestKey;
+    }
+
+    function calculate() {
+      const inputField = document.getElementById("inputField");
+      const resultParagraph1 = document.getElementById("resultParagraph1");
+      const resultParagraph2 = document.getElementById("resultParagraph2");
+      const resultParagraph3 = document.getElementById("resultParagraph3");
+
+      const inputValue = parseFloat(inputField.value);
+
+      const calculatedValue = inputValue + 2.2;
+      const closestKey = findClosestKey(calculatedValue);
+
+      if (closestKey !== null) {
+        resultParagraph1.textContent = lookupTable[closestKey] + "(" + closestKey + ")";
+      } else {
+        resultParagraph1.textContent = "查無對應值";
+      }
+
+      resultParagraph2.textContent = (inputValue / 0.317).toFixed(2);
+      resultParagraph3.textContent = (inputValue / 0.317 / 1.062).toFixed(1); 
+    }
+  </script>
+
+</body>
+</html>
