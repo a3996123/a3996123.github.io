@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>股票投資計算器 (10 年)</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      margin: 20px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 5px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>股票投資計算器 (10 年)</h2>
+  <p>計算每年投入固定金額購買股票，並考慮股利再投入的 10 年後總資產。</p>
+
+  <label for="yearlyInvestment">每年投入金額：</label>
+  <input type="number" id="yearlyInvestment" value="24000">
+
+  <label for="sharePrice">股價：</label>
+  <input type="number" id="sharePrice" value="10">
+
+  <label for="dividendPerShare">股利 (元/股)：</label>
+  <input type="number" id="dividendPerShare" value="0.1">
+
+  <button onclick="calculateInvestment()">計算</button>
+
+  <h3>每年股利不投入</h3>
+  <table id="noReinvestTable">
+    <thead>
+      <tr>
+        <th>年度</th>
+        <th>累積本金</th>
+        <th>當年股利</th>
+        <th>累積股利</th>
+        <th>當年購買股票數</th>
+        <th>累積股票數</th>
+        <th>總值</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 計算結果將插入此處 -->
+    </tbody>
+  </table>
+
+  <h3>每年股利再投入</h3>
+  <table id="reinvestTable">
+    <thead>
+      <tr>
+        <th>年度</th>
+        <th>累積本金</th>
+        <th>當年股利</th>
+        <th>累積股利</th>
+        <th>當年購買股票數</th>
+        <th>累積股票數</th>
+        <th>總值</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 計算結果將插入此處 -->
+    </tbody>
+  </table>
+
+  <script>
+    function calculateInvestment() {
+      const yearlyInvestment = parseFloat(document.getElementById("yearlyInvestment").value);
+      const sharePrice = parseFloat(document.getElementById("sharePrice").value);
+      const dividendPerShare = parseFloat(document.getElementById("dividendPerShare").value);
+
+      // 清空表格內容
+      const noReinvestTable = document.getElementById("noReinvestTable").getElementsByTagName('tbody')[0];
+      noReinvestTable.innerHTML = '';
+      const reinvestTable = document.getElementById("reinvestTable").getElementsByTagName('tbody')[0];
+      reinvestTable.innerHTML = '';
+
+      // 每年股利不投入
+      let totalSharesNoReinvest = 0;
+      let totalDividendNoReinvest = 0;
+      let totalValueWithoutReinvest = 0; // 添加这一行
+      for (let year = 1; year <= 10; year++) {
+        let sharesBought = Math.floor(yearlyInvestment / sharePrice);
+        totalSharesNoReinvest += sharesBought;
+        let dividend = totalSharesNoReinvest * dividendPerShare;
+        totalDividendNoReinvest += dividend;
+        totalValueWithoutReinvest = Math.floor(yearlyInvestment * year + totalDividendNoReinvest); // 修改此行
+
+        // 更新表格內容
+        let row = noReinvestTable.insertRow();
+        let cell1 = row.insertCell();
+        let cell2 = row.insertCell();
+        let cell3 = row.insertCell();
+        let cell4 = row.insertCell();
+        let cell5 = row.insertCell();
+        let cell6 = row.insertCell();
+        let cell7 = row.insertCell();
+        cell1.innerHTML = year;
+        cell2.innerHTML = Math.floor(yearlyInvestment * year);
+        cell3.innerHTML = Math.floor(dividend);
+        cell4.innerHTML = Math.floor(totalDividendNoReinvest);
+        cell5.innerHTML = sharesBought;
+        cell6.innerHTML = totalSharesNoReinvest;
+        cell7.innerHTML = Math.floor(totalValueWithoutReinvest); // 修改此行
+      }
+
+let totalSharesReinvest = 0;
+let lastYearDividend = 0; // 添加一个变量来保存上一年的股利
+let totalDividendReinvest = 0; // 累积股利
+for (let year = 1; year <= 10; year++) {
+    let availableFunds = yearlyInvestment + lastYearDividend; // 使用上一年的股利
+    let sharesBought = Math.floor(availableFunds / sharePrice);
+    totalSharesReinvest += sharesBought;
+    let dividend = totalSharesReinvest * dividendPerShare;
+    lastYearDividend = dividend; // 将当前年度的股利保存为上一年的股利
+    totalDividendReinvest += dividend; // 更新累积股利
+
+    // 更新表格內容
+    let row = reinvestTable.insertRow();
+    let cell1 = row.insertCell();
+    let cell2 = row.insertCell();
+    let cell3 = row.insertCell();
+    let cell4 = row.insertCell();
+    let cell5 = row.insertCell();
+    let cell6 = row.insertCell();
+    let cell7 = row.insertCell();
+    cell1.innerHTML = year;
+    cell2.innerHTML = Math.floor(yearlyInvestment * year);
+    cell3.innerHTML = Math.floor(dividend);
+    cell4.innerHTML = Math.floor(totalDividendReinvest); // 使用累积股利
+    cell5.innerHTML = sharesBought;
+    cell6.innerHTML = totalSharesReinvest;
+    cell7.innerHTML = Math.floor(yearlyInvestment * year + totalDividendReinvest); 
+}
+
+
+
+    }
+  </script>
+
+</body>
+</html>
