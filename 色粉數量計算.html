@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>色粉數量計算</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      gap: 40px;
+    }
+    .form-section, .result-section {
+      flex: 1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    td {
+      padding: 8px;
+      vertical-align: middle;
+    }
+    input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 5px;
+    }
+    .result-section {
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>色粉數量計算表單</h2>
+
+  <div class="container">
+    <!-- 表單區塊 -->
+    <div class="form-section">
+      <table>
+        <tr>
+          <td>1. 小樣色粉數量 (g):</td>
+          <td><input type="number" id="samplePowder" step="any"></td>
+        </tr>
+        <tr>
+          <td>2. 小樣修色一手數量 (g):(250 or 500)</td>
+          <td><input type="number" id="sampleBatch" step="any"></td>
+        </tr>
+        <tr>
+          <td>3. 稀釋程度 (/1 為 10，/5 為 50,/100 為 100):</td>
+          <td><input type="number" id="dilution" step="any"></td>
+        </tr>
+        <tr>
+          <td>4. 實際總修色數量 (kg):</td>
+          <td><input type="number" id="actualTotal" step="any"></td>
+        </tr>
+        <tr>
+          <td>5. 打折率 (%):</td>
+          <td><input type="number" id="discount" step="any"></td>
+        </tr>
+        <tr>
+          <td colspan="2" style="text-align: center;">
+            <button onclick="calculate()">計算</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 結果區塊 -->
+    <div class="result-section">
+      <p id="actualColorPowder">6. 實際色粉數量: -</p>
+      <p id="discountedAmount">7. 打折後數量: -</p>
+    </div>
+  </div>
+
+  <script>
+    function calculate() {
+      const samplePowder = parseFloat(document.getElementById("samplePowder").value) || 0;
+      const sampleBatch = parseFloat(document.getElementById("sampleBatch").value) || 1;
+      const dilution = parseFloat(document.getElementById("dilution").value) || 1;
+      const actualTotal = parseFloat(document.getElementById("actualTotal").value) || 0;
+      const discountInput = document.getElementById("discount").value;
+      const discount = discountInput === "" ? null : parseFloat(discountInput);
+
+      const actualColorPowder = (samplePowder / sampleBatch / dilution) * actualTotal * 1000;
+
+      let discountedAmount;
+      if (discount === null) {
+        discountedAmount = actualColorPowder;
+      } else {
+        discountedAmount = actualColorPowder * (discount / 100);
+      }
+
+      document.getElementById("actualColorPowder").innerText =
+        `6. 實際色粉數量: ${actualColorPowder.toFixed(2)} g`;
+
+      document.getElementById("discountedAmount").innerText =
+        `7. 打折後數量: ${discountedAmount.toFixed(2)} g`;
+    }
+  </script>
+
+</body>
+</html>

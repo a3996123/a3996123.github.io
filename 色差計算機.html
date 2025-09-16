@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>色差計算</title>
+  <meta charset="UTF-8">
+  <style>
+    /* CSS code from the previous response goes here */
+  </style>
+</head>
+<body>
+  <h1>色差計算</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>標準值</th>
+        <th>比較值</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="number" id="L1" placeholder="L1"></td>
+        <td><input type="number" id="L2" placeholder="L2"></td>
+      </tr>
+      <tr>
+        <td><input type="number" id="A1" placeholder="A1"></td>
+        <td><input type="number" id="A2" placeholder="A2"></td>
+      </tr>
+      <tr>
+        <td><input type="number" id="B1" placeholder="B1"></td>
+        <td><input type="number" id="B2" placeholder="B2"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button onclick="calculateDeltaE()">計算 ΔE</button>
+
+  <div class="result-display">
+    <p>ΔL: <span id="deltaL"></span></p>
+    <p>ΔA: <span id="deltaA"></span></p>
+    <p>ΔB: <span id="deltaB"></span></p>
+    <p>ΔE: <span id="deltaE"></span></p>
+  </div>
+
+  <script>
+    function calculateDeltaE() {
+      // 取得輸入值
+      const L1 = parseFloat(document.getElementById("L1").value);
+      const L2 = parseFloat(document.getElementById("L2").value);
+      const A1 = parseFloat(document.getElementById("A1").value);
+      const A2 = parseFloat(document.getElementById("A2").value);
+      const B1 = parseFloat(document.getElementById("B1").value);
+      const B2 = parseFloat(document.getElementById("B2").value);
+
+      // 計算 ΔL, ΔA, ΔB
+      const deltaL = L2 - L1;
+      const deltaA = A2 - A1;
+      const deltaB = B2 - B1;
+
+      // 計算 ΔE
+      const deltaE = Math.sqrt(Math.pow(deltaL, 2) + Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
+
+      // 将结果显示到两位小数
+      document.getElementById("deltaL").textContent = deltaL.toFixed(2);
+      document.getElementById("deltaA").textContent = deltaA.toFixed(2);
+      document.getElementById("deltaB").textContent = deltaB.toFixed(2);
+      document.getElementById("deltaE").textContent = deltaE.toFixed(2);
+    }
+  </script>
+</body>
+</html>

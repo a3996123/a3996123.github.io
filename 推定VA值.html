@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推定VA值計算器</title>
+    <script>
+        function calculate() {
+            // 獲取輸入的數值
+            let num1 = parseFloat(document.getElementById("num1").value);
+            let num2 = parseFloat(document.getElementById("num2").value);
+            let num3 = parseFloat(document.getElementById("num3").value);
+
+            // 合計數值
+            let sum = num1 + num2 + num3;
+
+            // 除以指定的數字並將結果四捨五入為整數
+            let result = Math.round(sum / 0.255415358451073);
+
+            // 顯示結果
+            document.getElementById("result").innerText = "推定VA值: " + result;
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === "Enter") {
+                calculate();
+            }
+        }
+
+        window.onload = function() {
+            document.getElementById("num1").addEventListener("keydown", handleKeyDown);
+            document.getElementById("num2").addEventListener("keydown", handleKeyDown);
+            document.getElementById("num3").addEventListener("keydown", handleKeyDown);
+        }
+    </script>
+</head>
+<body>
+    <h1>推定VA值計算器</h1>
+    <label for="num1">Peak 1020 高度:</label>
+    <input type="number" id="num1" name="num1"><br><br>
+    <label for="num2">Peak 1240 高度:</label>
+    <input type="number" id="num2" name="num2"><br><br>
+    <label for="num3">Peak 1735 高度:</label>
+    <input type="number" id="num3" name="num3"><br><br>
+    <button onclick="calculate()">計算</button>
+    <p id="result">推定VA值: </p>
+</body>
+</html>

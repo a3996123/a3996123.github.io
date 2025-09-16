@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比例計算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 300px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>比例計算器</h2>
+        <label for="numValues">選擇計算值的數量:</label>
+        <select id="numValues" onchange="generateInputs()">
+            <option value="0">請選擇</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+
+        <div id="inputContainer"></div>
+
+        <button onclick="calculateRatio()">計算比例</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function generateInputs() {
+            const numValues = parseInt(document.getElementById('numValues').value);
+            const inputContainer = document.getElementById('inputContainer');
+            inputContainer.innerHTML = '';
+
+            for (let i = 1; i <= numValues; i++) {
+                const label = document.createElement('label');
+                label.textContent = `輸入值 ${i}:`;
+                label.setAttribute('for', `value${i}`);
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = `value${i}`;
+                input.step = '0.0001';
+                input.placeholder = `輸入第 ${i} 個值`;
+
+                inputContainer.appendChild(label);
+                inputContainer.appendChild(input);
+            }
+        }
+
+        function calculateRatio() {
+            const numValues = parseInt(document.getElementById('numValues').value);
+            if (numValues === 0) {
+                document.getElementById('result').innerHTML = "請先選擇計算值的數量。";
+                return;
+            }
+
+            let total = 0;
+            let values = [];
+
+            for (let i = 1; i <= numValues; i++) {
+                const value = parseFloat(document.getElementById(`value${i}`).value) || 0;
+                values.push(value);
+                total += value;
+            }
+
+            if (total === 0) {
+                document.getElementById('result').innerHTML = "請至少輸入一個有效的數字。";
+                return;
+            }
+
+            let resultHTML = '';
+            values.forEach((value, index) => {
+                const ratio = ((value / total) * 100).toFixed(1);
+                resultHTML += `值 ${index + 1} 的比例: ${ratio}%<br>`;
+            });
+
+            document.getElementById('result').innerHTML = resultHTML;
+        }
+    </script>
+</body>
+</html>
