@@ -1,0 +1,113 @@
+/* 全域設定 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    text-align: center;
+}
+
+header {
+    margin-bottom: 40px;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #1a237e;
+}
+
+header p {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* 主要分類卡片 */
+.choices {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.choice-card {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 250px;
+}
+
+.choice-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.choice-card i {
+    font-size: 3rem;
+    color: #3949ab;
+    margin-bottom: 15px;
+}
+
+.choice-card h2 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/* 小程式卡片網格 */
+.applet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.applet-card, .placeholder-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-decoration: none;
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+}
+
+.applet-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    color: #1a237e;
+}
+
+.placeholder-card {
+    color: #999;
+    background-color: #fafafa;
+    border: 2px dashed #ddd;
+}
+
+/* 用於隱藏元素的工具 class */
+.hidden {
+    display: none;
+}
