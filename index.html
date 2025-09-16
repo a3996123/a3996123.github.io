@@ -1,4 +1,51 @@
-<a href="密度計算機.html">打開 密度計算機</a>
-<a href="耐衝計算.html">打開 耐衝計算</a>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的小程式入口</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
 
+    <div class="container">
+        <header>
+            <h1>我的小程式中心</h1>
+            <p>請選擇一個分類來開始</p>
+        </header>
 
+        <div class="choices">
+            <div class="choice-card" id="show-work">
+                <i class="fas fa-briefcase"></i>
+                <h2>工作小程式</h2>
+            </div>
+            <div class="choice-card" id="show-personal">
+                <i class="fas fa-coffee"></i>
+                <h2>平時小程式</h2>
+            </div>
+        </div>
+
+        <div id="work-applets" class="applet-grid hidden">
+            <a href="品管表單對比總表.html" class="applet-card">品管表單對比總表</a>
+            <a href="密度計算機.html" class="applet-card">密度計算機</a>
+            <a href="色差計算機.html" class="applet-card">色差計算機</a>
+            <a href="色粉數量計算.html" class="applet-card">色粉數量計算</a>
+            <a href="耐衝計算.html" class="applet-card">耐衝計算</a>
+            <a href="比例計算V2.html" class="applet-card">比例計算V2</a>
+            <a href="百分比計算.html" class="applet-card">百分比計算</a>
+            <a href="進定VA值.html" class="applet-card">進定VA值</a>
+            <a href="IKEA讀取TEST(2).html" class="applet-card">IKEA讀取TEST</a>
+        </div>
+
+        <div id="personal-applets" class="applet-grid hidden">
+            <div class="placeholder-card">
+                <p>此區域待新增</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
