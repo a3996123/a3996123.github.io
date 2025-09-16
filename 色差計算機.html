@@ -1,71 +1,205 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-  <title>色差計算</title>
-  <meta charset="UTF-8">
-  <style>
-    /* CSS code from the previous response goes here */
-  </style>
+    <title>色差計算</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* 基本樣式 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+        :root {
+            --primary-color: #3d5afe;
+            --background-color: #f4f5f7;
+            --card-background: #ffffff;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 計算機主容器 */
+        .calculator-container {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+        
+        /* 關鍵步驟 2: 使用 CSS Grid 建立彈性網格佈局 */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 預設為兩欄 */
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .input-column h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box; /* 確保 padding 不會影響寬度 */
+        }
+
+        /* 按鈕樣式 */
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #304ffe;
+        }
+
+        /* 結果顯示區域 */
+        .result-display {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .result-display p {
+            margin: 10px 0;
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .result-display span {
+            font-weight: 700;
+            color: #d32f2f;
+        }
+
+        /* 關鍵步驟 3: 使用媒體查詢處理小螢幕 */
+        @media (max-width: 600px) {
+            .input-grid {
+                grid-template-columns: 1fr; /* 在小螢幕上變為一欄 */
+            }
+
+            .calculator-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>色差計算</h1>
+    <div class="calculator-container">
+        <h1>色差計算 🎨</h1>
+        
+        <div class="input-grid">
+            <div class="input-column">
+                <h2>標準值</h2>
+                <div class="input-group">
+                    <label for="L1">L* 標準</label>
+                    <input type="number" id="L1" placeholder="請輸入 L1">
+                </div>
+                <div class="input-group">
+                    <label for="A1">a* 標準</label>
+                    <input type="number" id="A1" placeholder="請輸入 A1">
+                </div>
+                <div class="input-group">
+                    <label for="B1">b* 標準</label>
+                    <input type="number" id="B1" placeholder="請輸入 B1">
+                </div>
+            </div>
+            <div class="input-column">
+                <h2>比較值</h2>
+                <div class="input-group">
+                    <label for="L2">L* 比較</label>
+                    <input type="number" id="L2" placeholder="請輸入 L2">
+                </div>
+                <div class="input-group">
+                    <label for="A2">a* 比較</label>
+                    <input type="number" id="A2" placeholder="請輸入 A2">
+                </div>
+                <div class="input-group">
+                    <label for="B2">b* 比較</label>
+                    <input type="number" id="B2" placeholder="請輸入 B2">
+                </div>
+            </div>
+        </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>標準值</th>
-        <th>比較值</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><input type="number" id="L1" placeholder="L1"></td>
-        <td><input type="number" id="L2" placeholder="L2"></td>
-      </tr>
-      <tr>
-        <td><input type="number" id="A1" placeholder="A1"></td>
-        <td><input type="number" id="A2" placeholder="A2"></td>
-      </tr>
-      <tr>
-        <td><input type="number" id="B1" placeholder="B1"></td>
-        <td><input type="number" id="B2" placeholder="B2"></td>
-      </tr>
-    </tbody>
-  </table>
+        <button onclick="calculateDeltaE()">計算 ΔE</button>
 
-  <button onclick="calculateDeltaE()">計算 ΔE</button>
+        <div class="result-display">
+            <p>ΔL (明暗差): <span id="deltaL">-</span></p>
+            <p>Δa (紅綠差): <span id="deltaA">-</span></p>
+            <p>Δb (黃藍差): <span id="deltaB">-</span></p>
+            <p><strong>ΔE (總色差):</strong> <span id="deltaE">-</span></p>
+        </div>
+    </div>
 
-  <div class="result-display">
-    <p>ΔL: <span id="deltaL"></span></p>
-    <p>ΔA: <span id="deltaA"></span></p>
-    <p>ΔB: <span id="deltaB"></span></p>
-    <p>ΔE: <span id="deltaE"></span></p>
-  </div>
+    <script>
+        // 您的 JavaScript 邏輯完全正確，無需修改
+        function calculateDeltaE() {
+            const L1 = parseFloat(document.getElementById("L1").value) || 0;
+            const L2 = parseFloat(document.getElementById("L2").value) || 0;
+            const A1 = parseFloat(document.getElementById("A1").value) || 0;
+            const A2 = parseFloat(document.getElementById("A2").value) || 0;
+            const B1 = parseFloat(document.getElementById("B1").value) || 0;
+            const B2 = parseFloat(document.getElementById("B2").value) || 0;
 
-  <script>
-    function calculateDeltaE() {
-      // 取得輸入值
-      const L1 = parseFloat(document.getElementById("L1").value);
-      const L2 = parseFloat(document.getElementById("L2").value);
-      const A1 = parseFloat(document.getElementById("A1").value);
-      const A2 = parseFloat(document.getElementById("A2").value);
-      const B1 = parseFloat(document.getElementById("B1").value);
-      const B2 = parseFloat(document.getElementById("B2").value);
+            const deltaL = L2 - L1;
+            const deltaA = A2 - A1;
+            const deltaB = B2 - B1;
 
-      // 計算 ΔL, ΔA, ΔB
-      const deltaL = L2 - L1;
-      const deltaA = A2 - A1;
-      const deltaB = B2 - B1;
+            const deltaE = Math.sqrt(Math.pow(deltaL, 2) + Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
 
-      // 計算 ΔE
-      const deltaE = Math.sqrt(Math.pow(deltaL, 2) + Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
-
-      // 将结果显示到两位小数
-      document.getElementById("deltaL").textContent = deltaL.toFixed(2);
-      document.getElementById("deltaA").textContent = deltaA.toFixed(2);
-      document.getElementById("deltaB").textContent = deltaB.toFixed(2);
-      document.getElementById("deltaE").textContent = deltaE.toFixed(2);
-    }
-  </script>
+            document.getElementById("deltaL").textContent = deltaL.toFixed(2);
+            document.getElementById("deltaA").textContent = deltaA.toFixed(2);
+            document.getElementById("deltaB").textContent = deltaB.toFixed(2);
+            document.getElementById("deltaE").textContent = deltaE.toFixed(2);
+        }
+    </script>
 </body>
 </html>
