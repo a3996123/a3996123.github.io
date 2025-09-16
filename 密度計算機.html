@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-    <title>密度計算器</title>
+	<meta charset="UTF-8">
+    <title>密度參考計算器</title>
     <style>
+        body {
+            font-family: sans-serif;
+        }
         table {
             border-collapse: collapse;
             width: 100%;
-            font-family: sans-serif;
+            margin-bottom: 20px; 
         }
         th, td {
             border: 1px solid #ccc;
@@ -16,33 +20,29 @@
         th {
             background-color: #f0f0f0;
         }
-        .totalDensity {
-            font-size: 1.5em;
-            font-weight: bold;
-        }
-        .rightAlign {
-            text-align: right;
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px; 
         }
         .totalDensityContainer {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            border: 1px solid #ccc;
-            padding: 5px;
-            width: calc(100% - 10px); 
+            margin-bottom: 10px; 
+            text-align: center;
         }
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px; 
-        }
+		/* 放大總計密度字體 */
+    .totalDensityContainer span {
+      font-size: 36px; /* 或者你想要的任何大小 */
+    }
     </style>
 </head>
 <body>
 
     <h2>密度計算器</h2>
+    <div class="totalDensityContainer">
+        總計密度: <span class="totalDensity">0.000</span>
+    </div>
 
-    <div class="grid-container">
+    <div class="container"> 
 
         <table>
             <thead>
@@ -55,17 +55,90 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>PP三色</td>
-                    <td>0.925</td>
+                    <td>玻璃微珠</td>
+                    <td>0.775</td>
                     <td><input type="number" oninput="calculateDensities()"></td>
                     <td class="rightAlign">0</td> 
                 </tr>
                 <tr>
-                    <td>中空板</td>
-                    <td>0.925</td>
+                    <td>一般韌劑</td>
+                    <td>0.870</td>
                     <td><input type="number" oninput="calculateDensities()"></td>
                     <td class="rightAlign">0</td>
                 </tr>
+				 <tr>
+                    <td>茂森粉+粒韌劑</td>
+                    <td>0.965</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>霖慶黑色母</td>
+                    <td>1.067</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>稻穀渣&咖啡渣</td>
+                    <td>1.12</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>晶須母粒</td>
+                    <td>1.262</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>晶須粉末</td>
+                    <td>1.357</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>成榕B黑色母粒</td>
+                    <td>1.38</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PT-75</td>
+                    <td>1.43</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>石粉粒</td>
+                    <td>1.44</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>滑石粉</td>
+                    <td>1.56</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PT-80</td>
+                    <td>1.565</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP玻纖</td>
+                    <td>1.59</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>鈦白粉</td>
+                    <td>3.1</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				
             </tbody>
         </table>
 
@@ -80,14 +153,116 @@
             </thead>
             <tbody>
                 <tr>
+                    <td>PP眼鏡盒</td>
+                    <td>0.900</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+                <tr>
+                    <td>PP電池盒粉碎</td>
+                    <td>0.905</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP杯水</td>
+                    <td>0.910</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP什色摺疊箱</td>
+                    <td>0.910</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP米板</td>
+                    <td>0.910</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP洗衣槽</td>
+                    <td>0.913</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP珠白厚粉碎</td>
+                    <td>0.918</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>LDPE</td>
+                    <td>0.920</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP三色</td>
+                    <td>0.925</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP黑什餐盒</td>
+                    <td>0.925</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP中空板</td>
+                    <td>0.925</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP/PE珠白墊板</td>
+                    <td>0.940</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>DPP-4-1</td>
+                    <td>0.940</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
                     <td>PP什色瓶蓋</td>
                     <td>0.950</td>
                     <td><input type="number" oninput="calculateDensities()"></td>
                     <td class="rightAlign">0</td>
                 </tr>
-                <tr>
+				<tr>
+                    <td>HDPE</td>
+                    <td>0.950</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
                     <td>PP保險桿</td>
                     <td>0.960</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP石粉料</td>
+                    <td>1.045</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP保險桿+石粉</td>
+                    <td>1.050</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>PP珠白薄+石粉</td>
+                    <td>1.250</td>
                     <td><input type="number" oninput="calculateDensities()"></td>
                     <td class="rightAlign">0</td>
                 </tr>
@@ -104,73 +279,114 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>PP保險桿+石粉</td>
-                    <td>1.050</td>
+                 <tr>
+                    <td>D4303-5或-6</td>
+                    <td>0.898</td>
                     <td><input type="number" oninput="calculateDensities()"></td>
                     <td class="rightAlign">0</td>
                 </tr>
+				<tr>
+                    <td>D4303</td>
+                    <td>0.900</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>FM-1918 or 1990</td>
+                    <td>0.900</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>P0503</td>
+                    <td>0.905</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>P4320</td>
+                    <td>0.985</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>15T1020</td>
+                    <td>1.046</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>1120</td>
+                    <td>1.047</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+				<tr>
+                    <td>15T1030</td>
+                    <td>1.135</td>
+                    <td><input type="number" oninput="calculateDensities()"></td>
+                    <td class="rightAlign">0</td>
+                </tr>
+			
+				
             </tbody>
         </table>
 
-    </div>
-
-    <div class="totalDensityContainer"> 
-        <span colspan="4" style="text-align: right;">總計密度: <span class="totalDensity">0</span></span>
-    </div>
+    </div> 
 
     <script>
-function calculateDensities() {
-  var totalDensity = 0;
-  var totalProportion = 0;
-  var tables = document.querySelectorAll("table"); 
+    function calculateDensities() {
+      var totalDensity = 0;
+      var totalProportion = 0;
+      var tables = document.querySelectorAll("table"); 
 
-  // 循环处理每个表格，计算总比例
-  for (var tableIndex = 0; tableIndex < tables.length; tableIndex++) {
-    var table = tables[tableIndex];
-    var rows = table.querySelectorAll("tr");
+      // 循环处理每个表格，计算总比例
+      for (var tableIndex = 0; tableIndex < tables.length; tableIndex++) {
+        var table = tables[tableIndex];
+        var rows = table.querySelectorAll("tr");
 
-    for (var i = 1; i < rows.length; i++) {
-      var proportionInput = rows[i].querySelectorAll("td")[2].querySelector("input");
-      var proportion = parseFloat(proportionInput.value);
-      if (!isNaN(proportion)) {
-        totalProportion += proportion;
+        for (var i = 1; i < rows.length; i++) {
+          var proportionInput = rows[i].querySelectorAll("td")[2].querySelector("input");
+          var proportion = parseFloat(proportionInput.value);
+          if (!isNaN(proportion)) {
+            totalProportion += proportion;
+          }
+        }
       }
+
+      // 循环处理每个表格，计算密度和实际比例
+      for (var tableIndex = 0; tableIndex < tables.length; tableIndex++) {
+        var table = tables[tableIndex];
+        var rows = table.querySelectorAll("tr");
+
+        for (var i = 1; i < rows.length; i++) {
+          var cells = rows[i].querySelectorAll("td");
+          var density = parseFloat(cells[1].textContent);
+          var proportionInput = cells[2].querySelector("input");
+          var proportion = parseFloat(proportionInput.value);
+          var actualProportionCell = cells[3];
+
+          if (isNaN(proportion)) {
+            proportion = 0;
+            proportionInput.value = 0; 
+          }
+
+          if (totalProportion === 0) { 
+            actualProportion = 0; 
+          } else {
+            actualProportion = (proportion / totalProportion) * 100; 
+          }
+
+          totalDensity += density * (actualProportion / 100);  
+          actualProportionCell.textContent = actualProportion.toFixed(2); 
+        }
+      }
+
+      document.querySelector(".totalDensity").textContent = totalDensity.toFixed(3); 
     }
-  }
 
-  // 循环处理每个表格，计算密度和实际比例
-  for (var tableIndex = 0; tableIndex < tables.length; tableIndex++) {
-    var table = tables[tableIndex];
-    var rows = table.querySelectorAll("tr");
-
-    for (var i = 1; i < rows.length; i++) {
-      var cells = rows[i].querySelectorAll("td");
-      var density = parseFloat(cells[1].textContent);
-      var proportionInput = cells[2].querySelector("input");
-      var proportion = parseFloat(proportionInput.value);
-      var actualProportionCell = cells[3];
-
-      if (isNaN(proportion)) {
-        proportion = 0;
-        proportionInput.value = 0;
-      }
-
-      if (totalProportion === 0) {
-        calculatedDensity = density;
-        actualProportion = 0;
-      } else {
-        calculatedDensity = density; // 使用原始密度
-        actualProportion = (proportion / totalProportion) * 100; // 使用总比例计算
-      }
-
-      totalDensity += calculatedDensity * (proportion / totalProportion); // 根据实际比例累計总计密度
-      actualProportionCell.textContent = actualProportion.toFixed(2); 
-    }
-  }
-
-  document.querySelector(".totalDensity").textContent = totalDensity.toFixed(3); 
-}
+    // 初始化计算
+    calculateDensities();
     </script>
 
 </body>
