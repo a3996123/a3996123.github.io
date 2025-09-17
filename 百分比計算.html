@@ -1,127 +1,285 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <title>配比計算器</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-    }
-    .container {
-      display: flex;
-      gap: 50px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    table, th, td {
-      border: 1px solid #333;
-    }
-    th, td {
-      padding: 8px;
-      text-align: center;
-    }
-    input {
-      width: 80px;
-      padding: 5px;
-      margin: 2px;
-    }
-    .section {
-      flex: 1;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比例/數量 配比計算器</title>
+    <style>
+        /* Google 字體 (可選) */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+        /* CSS 變量，方便統一管理顏色 */
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+
+        /* 基礎樣式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--light-gray);
+            padding: 20px;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        main {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 2.2rem;
+            color: #343a40;
+        }
+        
+        /* 主要容器佈局 */
+        .container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap; /* 響應式換行 */
+        }
+        
+        /* 卡片式區塊樣式 */
+        .section {
+            flex: 1;
+            min-width: 350px; /* 響應式最小寬度 */
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        /* 表格樣式 */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        thead th {
+            background-color: #495057;
+            color: #fff;
+            font-weight: 500;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tbody td:first-child {
+            font-weight: 500;
+            text-align: left;
+        }
+
+        /* 表單元素樣式 */
+        label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            text-align: right;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        }
+
+        /* 總配比數量區塊 */
+        .total-amount-group {
+            margin-top: 20px;
+        }
+
+        /* 按鈕樣式 */
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* 比例總和提示 */
+        .total-ratio-display {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        /* 結果區標題 */
+        #results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+    </style>
 </head>
 <body>
-  <h2>配比計算器</h2>
-  <div class="container">
-    <!-- 左側輸入區 -->
-    <div class="section">
-      <form id="ratioForm">
-        <table>
-          <thead>
-            <tr>
-              <th>項目</th>
-              <th>百分比 (%)</th>
-            </tr>
-          </thead>
-          <tbody id="percentageInputs">
-            <!-- 10 個輸入欄位 -->
-            <tr><td>項目 1</td><td><input type="number" step="0.01" min="0" max="100" id="p0" placeholder="0"></td></tr>
-            <tr><td>項目 2</td><td><input type="number" step="0.01" min="0" max="100" id="p1" placeholder="0"></td></tr>
-            <tr><td>項目 3</td><td><input type="number" step="0.01" min="0" max="100" id="p2" placeholder="0"></td></tr>
-            <tr><td>項目 4</td><td><input type="number" step="0.01" min="0" max="100" id="p3" placeholder="0"></td></tr>
-            <tr><td>項目 5</td><td><input type="number" step="0.01" min="0" max="100" id="p4" placeholder="0"></td></tr>
-            <tr><td>項目 6</td><td><input type="number" step="0.01" min="0" max="100" id="p5" placeholder="0"></td></tr>
-            <tr><td>項目 7</td><td><input type="number" step="0.01" min="0" max="100" id="p6" placeholder="0"></td></tr>
-            <tr><td>項目 8</td><td><input type="number" step="0.01" min="0" max="100" id="p7" placeholder="0"></td></tr>
-            <tr><td>項目 9</td><td><input type="number" step="0.01" min="0" max="100" id="p8" placeholder="0"></td></tr>
-            <tr><td>項目 10</td><td><input type="number" step="0.01" min="0" max="100" id="p9" placeholder="0"></td></tr>
-          </tbody>
-        </table>
-        <br>
-        <label>總配比數量：
-          <input type="number" step="1" min="0" id="totalAmount" placeholder="請輸入數量">
-        </label>
-        <br><br>
-        <button type="button" onclick="calculateAmounts()">計算</button>
-      </form>
-    </div>
+    <main>
+        <h2>比例/數量 配比計算器</h2>
+        <div class="container">
+            <div class="section">
+                <form id="ratioForm">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>項目</th>
+                                <th>比例 / 數量</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ratioInputs">
+                            </tbody>
+                    </table>
 
-    <!-- 右側結果區 -->
-    <div class="section" id="results">
-      <h3>計算結果</h3>
-      <table>
-        <thead>
-          <tr><th>項目</th><th>配比數量</th></tr>
-        </thead>
-        <tbody id="resultBody">
-          <tr><td>項目 1</td><td>—</td></tr>
-          <tr><td>項目 2</td><td>—</td></tr>
-          <tr><td>項目 3</td><td>—</td></tr>
-          <tr><td>項目 4</td><td>—</td></tr>
-          <tr><td>項目 5</td><td>—</td></tr>
-          <tr><td>項目 6</td><td>—</td></tr>
-          <tr><td>項目 7</td><td>—</td></tr>
-          <tr><td>項目 8</td><td>—</td></tr>
-          <tr><td>項目 9</td><td>—</td></tr>
-          <tr><td>項目 10</td><td>—</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+                    <div id="totalRatio" class="total-ratio-display">比例總和: 0</div>
 
-  <script>
-    function calculateAmounts() {
-      const total = parseFloat(document.getElementById('totalAmount').value);
-      if (isNaN(total) || total <= 0) {
-        alert("請輸入有效的總配比數量！");
-        return;
-      }
+                    <div class="total-amount-group">
+                        <label for="totalAmount">總配比數量：</label>
+                        <input type="number" step="1" min="0" id="totalAmount" placeholder="請輸入總數量">
+                    </div>
+                    <br>
+                    <button type="button" onclick="calculateAmounts()">計算配比</button>
+                </form>
+            </div>
 
-      let totalPercent = 0;
-      const percentages = [];
+            <div class="section" id="results">
+                <h3>計算結果</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>實際百分比 (%)</th>
+                            <th>配比數量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
-      for (let i = 0; i < 10; i++) {
-        const val = parseFloat(document.getElementById('p' + i).value);
-        const percent = isNaN(val) ? 0 : val;
-        totalPercent += percent;
-        percentages.push(percent);
-      }
+    <script>
+        const ratioInputsContainer = document.getElementById('ratioInputs');
+        const resultBodyContainer = document.getElementById('resultBody');
+        const totalRatioDisplay = document.getElementById('totalRatio');
+        const itemCount = 10;
 
-      if (totalPercent !== 100) {
-        alert("總百分比必須為 100%。目前為 " + totalPercent + "%");
-        return;
-      }
+        // 初始化時，動態生成輸入欄位和結果欄位
+        for (let i = 0; i < itemCount; i++) {
+            ratioInputsContainer.innerHTML += `
+                <tr>
+                    <td>項目 ${i + 1}</td>
+                    <td><input type="number" step="0.01" min="0" id="p${i}" placeholder="0" oninput="updateTotalRatio()"></td>
+                </tr>`;
+            
+            resultBodyContainer.innerHTML += `
+                <tr>
+                    <td>項目 ${i + 1}</td>
+                    <td id="rp${i}">—</td>
+                    <td id="ra${i}">—</td>
+                </tr>`;
+        }
+        
+        // 即時更新比例總和
+        function updateTotalRatio() {
+            let totalRatio = 0;
+            for (let i = 0; i < itemCount; i++) {
+                const val = parseFloat(document.getElementById('p' + i).value);
+                totalRatio += isNaN(val) ? 0 : val;
+            }
+            totalRatioDisplay.textContent = `比例總和: ${totalRatio.toFixed(2)}`;
+        }
 
-      const resultBody = document.getElementById('resultBody');
-      resultBody.innerHTML = '';
-      percentages.forEach((p, i) => {
-        const amount = ((p / 100) * total).toFixed(2);
-        resultBody.innerHTML += `<tr><td>項目 ${i + 1}</td><td>${amount}</td></tr>`;
-      });
-    }
-  </script>
+        // 執行計算
+        function calculateAmounts() {
+            const totalAmount = parseFloat(document.getElementById('totalAmount').value);
+            if (isNaN(totalAmount) || totalAmount < 0) {
+                alert("請輸入有效的總配比數量！");
+                return;
+            }
+
+            let totalRatio = 0;
+            const ratios = [];
+
+            for (let i = 0; i < itemCount; i++) {
+                const val = parseFloat(document.getElementById('p' + i).value);
+                const ratio = isNaN(val) ? 0 : val;
+                ratios.push(ratio);
+                totalRatio += ratio;
+            }
+
+            if (totalRatio === 0) {
+                alert("請至少輸入一個項目的比例！");
+                // 清空結果
+                for (let i = 0; i < itemCount; i++) {
+                    document.getElementById(`rp${i}`).textContent = '—';
+                    document.getElementById(`ra${i}`).textContent = '—';
+                }
+                return;
+            }
+
+            ratios.forEach((r, i) => {
+                const actualPercent = (r / totalRatio) * 100;
+                const finalAmount = (r / totalRatio) * totalAmount;
+                
+                document.getElementById(`rp${i}`).textContent = actualPercent.toFixed(2) + '%';
+                document.getElementById(`ra${i}`).textContent = finalAmount.toFixed(2);
+            });
+        }
+
+        // 頁面載入時，先初始化一次顯示
+        updateTotalRatio();
+    </script>
 </body>
 </html>
