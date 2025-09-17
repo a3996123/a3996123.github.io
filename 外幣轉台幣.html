@@ -337,7 +337,7 @@
                 </div>
             </div>
 
-            <div class="operators-row">
+            <div class="operators-row" id="operatorsRow">
                 <button class="operator-btn" data-op="(">(</button>
                 <button class="operator-btn" data-op=")">)</button>
                 <button class="operator-btn" data-op="+">+</button>
@@ -399,6 +399,7 @@
     const copyBtn = document.getElementById('copyBtn');
     const operatorButtons = document.querySelectorAll('.operator-btn'); 
     const resultContainer = document.getElementById('resultContainer'); // 換算結果的容器
+    const operatorsRow = document.getElementById('operatorsRow'); // 新增：運算符號按鈕的容器
 
     // 數字格式化工具
     const nfRate = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 3, minimumFractionDigits: 3 }); 
@@ -625,85 +626,20 @@
     });
 
 
-    // ============= 優化滾動行為：手動控制滾動以適應虛擬鍵盤 =============
-
-    let isKeyboardShowing = false;
-    let initialViewportHeight = window.innerHeight; // 記錄沒有鍵盤時的視窗高度
-
-    function handleViewportResize() {
-        if (!window.visualViewport) return; // 檢查瀏覽器是否支持 visualViewport
-
-        const currentViewportHeight = window.visualViewport.height;
-        const keyboardHeight = initialViewportHeight - currentViewportHeight;
-        
-        // 判斷鍵盤是否彈出
-        // 這裡設定一個閾值（例如50px），防止因像素差異導致誤判
-        if (keyboardHeight > 50 && !isKeyboardShowing) { 
-            isKeyboardShowing = true;
-            // console.log('Keyboard appeared. Height:', keyboardHeight);
-            
-            // 計算 resultContainer 的位置
-            const resultRect = resultContainer.getBoundingClientRect();
-            const targetScrollY = resultRect.top + window.scrollY - 20; // 向上微調 20px 留些緩衝
-
-            // 確保滾動後，resultContainer 的底部位於鍵盤上方
-            // visualViewport.height 是當前可見區域的高度
-            const bottomOfResult = resultRect.bottom + window.scrollY;
-            const bottomOfViewport = window.scrollY + currentViewportHeight;
-
-            // 如果 resultContainer 的底部已經在可視區域內，則不需要滾動
-            // 或者 resultContainer 的底部會被鍵盤遮擋
-            if (bottomOfResult > bottomOfViewport) {
-                // 目標滾動位置 = resultContainer 距離視窗頂部的距離 + 當前滾動量 - 調整量
-                // 這裡的調整量是為了讓 resultContainer 能夠被看見，並位於鍵盤上方
-                // 我們希望 resultContainer 的底部，距離 visualViewport 的底部有一個安全距離
-                const desiredOffsetFromBottom = 20; // 底部留 20px 的緩衝
-
-                // 計算新的滾動位置，使得 resultContainer 的底部在鍵盤上方（即 visualViewport 底部）
-                // 並且留下 desiredOffsetFromBottom 的空間
-                const newScrollTop = (resultRect.bottom + window.scrollY) - currentViewportHeight + desiredOffsetFromBottom;
-                
-                window.scrollTo({
-                    top: newScrollTop,
-                    behavior: 'smooth'
-                });
-            }
-
-        } else if (keyboardHeight <= 50 && isKeyboardShowing) {
-            isKeyboardShowing = false;
-            // console.log('Keyboard hidden.');
-            // 鍵盤隱藏時，可以考慮滾動回輸入框，或者保持當前位置
-            // 目前不特別處理鍵盤隱藏時的滾動，讓瀏覽器處理
-        }
-    }
-
-    // 當輸入框獲取焦點時，如果鍵盤已經彈出，則觸發一次滾動調整
-    // 或者我們只在鍵盤出現時才執行滾動邏輯
+    // ============= 優化滾動行為 =============
     elIn.addEventListener('focus', () => {
-        // 在鍵盤彈出後，通過 visualViewport 監聽來處理滾動
-        // 這里不需要立即調用 scrollIntoView，因為 resize 事件會處理
-        // 但可以確保在已經彈出鍵盤的情況下，如果用戶再次點擊輸入框，也會有一次調整
-        if (isKeyboardShowing && window.visualViewport) {
-            handleViewportResize(); // 立即觸發一次調整
+        // 僅在小螢幕（可能是手機）上觸發滾動
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                // 將運算符號按鈕區塊滾動到視窗底部
+                operatorsRow.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'end' // ***修改為 'end'***
+                });
+            }, 300);
         }
     });
 
-    // 監聽 visualViewport 的 resize 事件，這在虛擬鍵盤彈出或隱藏時會觸發
-    if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', handleViewportResize);
-    } else {
-        // 如果瀏覽器不支持 visualViewport，則退回到上一個 scrollIntoView 的方法
-        elIn.addEventListener('focus', () => {
-            if (window.innerWidth <= 768) { 
-                setTimeout(() => { 
-                    resultContainer.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'nearest' 
-                    });
-                }, 300); 
-            }
-        });
-    }
 
     // ============= 初始化 =============
     (async function init() {
