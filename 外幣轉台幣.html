@@ -24,6 +24,9 @@
             --fs-base: clamp(18px, 2.4vw + .4rem, 28px);
             --fs-lg: clamp(22px, 3.4vw + .6rem, 44px);
             --fs-sm: clamp(14px, 1.2vw + .25rem, 18px);
+
+            /* 新增一個更大的字體變數給主要結果 */
+            --fs-xl: clamp(48px, 8vw, 96px); 
         }
         *{box-sizing:border-box}
         body{
@@ -66,6 +69,7 @@
         }
         .panel{ width:min(840px,100%); margin:0 auto; }
 
+        /* 匯率輸入區塊調整 */
         .rate-row{
             display:flex; 
             align-items:center; 
@@ -102,6 +106,10 @@
             background:var(--input-bg); 
             color:var(--ink);
         }
+        .rate-row #rateInput {
+            width: 160px; /* 固定寬度，不再是自動佔滿 */
+            flex-shrink: 0; /* 不壓縮 */
+        }
         .rate-row .mini-btn{
             height:2.2em; 
             padding:0 .8em; 
@@ -126,6 +134,22 @@
             margin-bottom:.35em; 
             text-align:center;
         }
+        /* 輸入外幣與合計並排呈現 */
+        .input-group {
+            display: flex;
+            align-items: flex-end; /* 讓兩個區塊底部對齊 */
+            gap: 1em;
+            margin-bottom: 1em;
+            flex-wrap: wrap; /* 小螢幕時允許換行 */
+        }
+        .input-group > div {
+            flex: 1; /* 讓兩個區塊平均分配空間 */
+            min-width: 140px; /* 防止過度壓縮 */
+        }
+        .input-group label {
+            margin-bottom: .2em; /* 調整標籤與輸入框的間距 */
+        }
+
         input[type="text"]{
             width:100%; 
             padding:.9em 1em; 
@@ -146,26 +170,62 @@
         .hint{ color:var(--muted); font-size:var(--fs-sm); text-align:center; margin-top:.4em }
         
         .sum{
-            text-align:center; margin:.8em 0; font-weight:700; letter-spacing:.5px;
-            padding: .4em .6em; background: rgba(0,0,0,0.2); border-radius: 8px;
+            text-align:center; 
+            margin:0; /* 移除預設 margin，由 .input-group 控制間距 */
+            font-weight:700; 
+            letter-spacing:.5px;
+            padding: .9em 1em; /* 與輸入框高度一致 */
+            background: rgba(0,0,0,0.2); 
+            border-radius: 8px;
             color: var(--muted);
+            line-height: 1.2; /* 確保內容不會太擠 */
+            display: flex; /* 讓內容垂直置中 */
+            align-items: center;
+            justify-content: center;
+            flex-direction: column; /* 讓標題和數值上下排列 */
+            min-height: calc(var(--fs-base) * 2.2 + 1.8em); /* 確保高度與輸入框接近 */
         }
-        .sum b{ color:var(--ink); font-size: 1.1em; vertical-align: -0.05em; margin-left: .2em; }
+        .sum span.sum-label {
+            font-size: var(--fs-sm);
+            color: var(--muted);
+            display: block;
+            margin-bottom: .2em;
+        }
+        .sum b{ 
+            color:var(--ink); 
+            font-size: 1.1em; /* 相對加大 */
+            vertical-align: middle; 
+            margin-left: 0; /* 移除左側間距 */
+        }
 
-        .result-container { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .result-container { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px; 
+            margin-top: var(--gap); /* 調整與上方元素的間距 */
+            background: rgba(0,0,0,0.2); /* 讓結果也有背景 */
+            border-radius: var(--radius);
+            padding: calc(var(--gap) / 2);
+            border: 1px solid var(--border-color);
+        }
         .result{
-            margin-top:.8em; 
             font-weight:800; 
-            font-size: clamp(36px, 5vw, 64px); 
-            color:var(--ink);
+            font-size: var(--fs-xl); /* 使用更大的字體變數 */
+            color:var(--brand); /* 顯眼的品牌色 */
             transition: opacity .3s;
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.4); /* 增加發光效果 */
+            line-height: 1; /* 調整行高讓數字更緊湊 */
         }
         .result.updating { opacity: 0.5; }
         .btn-copy {
-            background: none; border: none; cursor: pointer; padding: 8px;
-            margin-top: .8em;
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            padding: 8px;
+            align-self: center; /* 讓複製按鈕垂直置中 */
         }
-        .btn-copy svg { width: 28px; height: 28px; stroke: var(--muted); transition: all .2s; }
+        .btn-copy svg { width: 32px; height: 32px; stroke: var(--muted); transition: all .2s; }
         .btn-copy:hover svg { stroke: var(--brand); transform: scale(1.1); }
 
         .btn-row{ display:flex; gap:.8em; align-items:center; margin-top: var(--gap); flex-wrap:wrap; justify-content:center }
@@ -185,6 +245,21 @@
         .btn.primary{ color:#000; background:var(--brand); }
         .btn.secondary{ background: var(--brand-2); color:#fff }
         @media (min-width:600px){ .btn{ flex:unset; min-width:140px } }
+        @media (max-width: 480px) {
+            .input-group {
+                flex-direction: column; /* 小螢幕時堆疊排列 */
+                align-items: stretch;
+            }
+            .input-group > div {
+                min-width: unset;
+            }
+            .result-container {
+                flex-direction: column; /* 小螢幕時結果與複製按鈕堆疊 */
+            }
+            .btn-copy {
+                margin-top: 0.5em; /* 調整複製按鈕間距 */
+            }
+        }
 
         .hide{ display:none !important; }
     </style>
@@ -205,16 +280,24 @@
                 <option value="EUR">歐元 EUR</option>
             </select>
             <span class="rate-info" id="rateInfo">1 TWD = 0.000000 CCY</span>
-            <input id="rateInput" type="text" inputmode="decimal" placeholder="手動：1 TWD 可換多少外幣" />
+            <input id="rateInput" type="text" inputmode="decimal" placeholder="手動匯率" />
             <button class="mini-btn use" id="applyRate">套用</button>
             <button class="mini-btn gray" id="restoreOnline">線上</button>
         </div>
         <section class="card" aria-label="換算">
-            <label id="label-in">輸入外幣（KRW）或運算式</label>
-            <input id="inVal" type="text" inputmode="decimal" placeholder="例如：10000 或 12+3*4/2" />
-            <div class="sum" id="sumBox">合計：<b>–</b></div>
+            <div class="input-group">
+                <div>
+                    <label id="label-in">輸入外幣（KRW）或運算式</label>
+                    <input id="inVal" type="text" inputmode="decimal" placeholder="例如：10000" />
+                </div>
+                <div class="sum" id="sumBox">
+                    <span class="sum-label">合計</span>
+                    <b>–</b>
+                </div>
+            </div>
+            
             <div class="result-container">
-                <div class="result" id="convResult">TWD 0</div>
+                <div class="result" id="convResult">TWD 0.00</div>
                 <button id="copyBtn" class="btn-copy" title="複製結果">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" /></svg>
                 </button>
@@ -238,32 +321,252 @@
     </div>
 </main>
 <script>
-    // Script is identical to the previous version.
+    // ============= 基本狀態與工具 =============
+    /**
+     * rateFT = Foreign / TWD (每 1 TWD 可換多少外幣)
+     * direction = 'FOREIGN_TO_TWD' 或 'TWD_TO_FOREIGN'
+     * lastResult = 儲存上一次計算的原始數字結果，用於智慧互換
+     */
     const DEFAULT_RATES_FT = { KRW: 40, JPY: 4.8, CNY: 0.22, USD: 0.031, EUR: 0.029 };
-    const FX_KEY = 'fx_rates_v3_ccy_per_twd';
-    const ONE_DAY = 24 * 60 * 60 * 1000;
+    const FX_KEY = 'fx_rates_v3_ccy_per_twd'; // localStorage 的鍵值
+    const ONE_DAY = 24 * 60 * 60 * 1000; // 一天的毫秒數
+
     const state = { ccy: 'KRW', rateFT: DEFAULT_RATES_FT.KRW, direction: 'FOREIGN_TO_TWD', lastResult: 0 };
-    const elCcy = document.getElementById('ccy'), elRateInfo = document.getElementById('rateInfo'), elIn = document.getElementById('inVal'), elRes = document.getElementById('convResult'), elSwap = document.getElementById('swap'), elClr = document.getElementById('clearConv'), elRefresh = document.getElementById('refresh'), labelIn = document.getElementById('label-in'), rateInput = document.getElementById('rateInput'), applyRate = document.getElementById('applyRate'), restoreOnline = document.getElementById('restoreOnline'), sumBox = document.getElementById('sumBox'), copyBtn = document.getElementById('copyBtn');
-    const nfRate = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 6 }), nfInt = new Intl.NumberFormat('zh-Hant-TW'), nfResult = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+
+    // DOM 元素快取
+    const elCcy = document.getElementById('ccy');
+    const elRateInfo = document.getElementById('rateInfo');
+    const elIn = document.getElementById('inVal');
+    const elRes = document.getElementById('convResult');
+    const elSwap = document.getElementById('swap');
+    const elClr = document.getElementById('clearConv');
+    const elRefresh = document.getElementById('refresh');
+    const labelIn = document.getElementById('label-in');
+    const rateInput = document.getElementById('rateInput');
+    const applyRate = document.getElementById('applyRate');
+    const restoreOnline = document.getElementById('restoreOnline');
+    const sumBox = document.getElementById('sumBox');
+    const copyBtn = document.getElementById('copyBtn');
+
+    // 數字格式化工具
+    // 修改這裡：nfRate 現在只顯示小數點後三位
+    const nfRate = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 3, minimumFractionDigits: 3 }); 
+    const nfInt = new Intl.NumberFormat('zh-Hant-TW');
+    const nfResult = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+
+
+    // ============= localStorage 相關操作 =============
     function loadCache() { try { return JSON.parse(localStorage.getItem(FX_KEY) || '{}'); } catch { return {}; } }
     function saveCache(c) { localStorage.setItem(FX_KEY, JSON.stringify(c)); }
     function getItem(ccy) { const c = loadCache(); return c[ccy] || {}; }
     function setItem(ccy, obj) { const c = loadCache(); c[ccy] = obj; saveCache(c); }
-    async function fetchRateFT(ccy) { const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(ccy)}`, res = await fetch(url, { cache: 'no-store' }); if (!res.ok) throw new Error('Network response was not ok'); const json = await res.json(), twdPerCcy = json?.rates?.TWD; if (typeof twdPerCcy !== 'number') throw new Error('Invalid currency data'); const ft = 1 / twdPerCcy, ts = (json.time_last_update_unix || 0) * 1000; return { rateFT: ft, ts }; }
-    function safeEvalExpr(raw) { const s = (raw || '').replace(/[,\s]/g, ''); if (!s) return NaN; if (/[^0-9+\-*/.()]/.test(s)) return NaN; try { const val = Function('"use strict";return(' + s + ')')(); return (typeof val === 'number' && Number.isFinite(val)) ? val : NaN; } catch { return NaN; } }
+
+
+    // ============= 核心功能 =============
+    /**
+     * 從 API 獲取最新匯率 (TWD/外幣)，並計算倒數 (外幣/TWD)
+     * @param {string} ccy - 貨幣代碼
+     * @returns {Promise<{rateFT: number, ts: number}>}
+     */
+    async function fetchRateFT(ccy) {
+        const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(ccy)}`;
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Network response was not ok');
+        const json = await res.json();
+        const twdPerCcy = json?.rates?.TWD;
+        if (typeof twdPerCcy !== 'number') throw new Error('Invalid currency data');
+        const ft = 1 / twdPerCcy; // 計算倒數
+        const ts = (json.time_last_update_unix || 0) * 1000;
+        return { rateFT: ft, ts };
+    }
+
+    /**
+     * 安全地計算字串運算式
+     * @param {string} raw - 原始輸入字串
+     * @returns {number} - 計算結果或 NaN
+     */
+    function safeEvalExpr(raw) {
+        const s = (raw || '').replace(/[,\s]/g, '');
+        if (!s) return NaN;
+        // 僅允許數字和基本運算符
+        if (/[^0-9+\-*/.()]/.test(s)) return NaN;
+        try {
+            const val = Function('"use strict";return(' + s + ')')();
+            return (typeof val === 'number' && Number.isFinite(val)) ? val : NaN;
+        } catch {
+            return NaN;
+        }
+    }
+
+
+    // ============= UI 渲染與更新 =============
     function renderRate() { elRateInfo.textContent = `1 TWD = ${nfRate.format(state.rateFT)} ${state.ccy}`; }
-    function render() { elRes.classList.add('updating'); const subtotal = safeEvalExpr(elIn.value); if (Number.isNaN(subtotal)) { sumBox.innerHTML = '合計：<b>–</b>'; const zeroText = (state.direction === 'FOREIGN_TO_TWD' ? `TWD 0.00` : `${state.ccy} 0`); elRes.textContent = zeroText; state.lastResult = 0; elRes.classList.remove('updating'); return; } sumBox.innerHTML = '合計：<b>' + nfInt.format(subtotal) + '</b>'; let resultNum, resultText; if (state.direction === 'FOREIGN_TO_TWD') { const twd = subtotal / state.rateFT; resultNum = twd; resultText = `TWD ${nfResult.format(twd)}`; } else { const foreign = subtotal * state.rateFT; resultNum = foreign; resultText = `${state.ccy} ${nfInt.format(foreign)}`; } state.lastResult = resultNum; setTimeout(() => { elRes.textContent = resultText; elRes.classList.remove('updating'); }, 100); }
-    function setUI() { labelIn.textContent = (state.direction === 'FOREIGN_TO_TWD') ? `輸入外幣（${state.ccy}）或運算式` : '輸入台幣（TWD）或運算式'; renderRate(); }
-    async function updateRate(force = false) { elRateInfo.classList.add('loading'); try { const item = getItem(state.ccy), now = Date.now(), active = item.active || 'online', stale = !item.ts || (now - item.ts > ONE_DAY); if (active === 'manual' && typeof item.manualRateFT === 'number') { state.rateFT = item.manualRateFT; return; } if (!force && !stale && typeof item.onlineRateFT === 'number') { state.rateFT = item.onlineRateFT; return; } const { rateFT, ts } = await fetchRateFT(state.ccy); state.rateFT = rateFT; setItem(state.ccy, { ...item, onlineRateFT: rateFT, ts: ts || now, active: 'online' }); } catch (error) { console.error("Rate update failed:", error); const item = getItem(state.ccy); state.rateFT = (item.active === 'manual' && typeof item.manualRateFT === 'number') ? item.manualRateFT : (typeof item.onlineRateFT === 'number') ? item.onlineRateFT : DEFAULT_RATES_FT[state.ccy]; } finally { renderRate(); render(); elRateInfo.classList.remove('loading'); } }
-    elCcy.addEventListener('change', async () => { state.ccy = elCcy.value; await updateRate(true); setUI(); });
-    elSwap.addEventListener('click', () => { const lastInput = safeEvalExpr(elIn.value); state.direction = (state.direction === 'FOREIGN_TO_TWD') ? 'TWD_TO_FOREIGN' : 'FOREIGN_TO_TWD'; if (state.lastResult > 0) { const precision = state.direction === 'FOREIGN_TO_TWD' ? 0 : 2; elIn.value = parseFloat(state.lastResult.toFixed(precision)); } else if (lastInput > 0) { elIn.value = lastInput; } setUI(); render(); elIn.select(); });
-    elClr.addEventListener('click', () => { elIn.value = ''; render(); elIn.focus(); });
+    
+    /**
+     * 主渲染函式：計算並更新畫面所有相關數值
+     */
+    function render() {
+        elRes.classList.add('updating');
+        const subtotal = safeEvalExpr(elIn.value);
+
+        if (Number.isNaN(subtotal)) {
+            sumBox.innerHTML = '<span class="sum-label">合計</span><b>–</b>';
+            const zeroText = (state.direction === 'FOREIGN_TO_TWD' ? `TWD 0.00` : `${state.ccy} 0.00`); // 修正為TWD 0.00
+            elRes.textContent = zeroText;
+            state.lastResult = 0;
+            elRes.classList.remove('updating');
+            return;
+        }
+
+        sumBox.innerHTML = '<span class="sum-label">合計</span><b>' + nfInt.format(subtotal) + '</b>';
+
+        let resultNum, resultText;
+        if (state.direction === 'FOREIGN_TO_TWD') {
+            const twd = subtotal / state.rateFT;
+            resultNum = twd;
+            resultText = `TWD ${nfResult.format(twd)}`;
+        } else {
+            const foreign = subtotal * state.rateFT;
+            resultNum = foreign;
+            resultText = `${state.ccy} ${nfInt.format(foreign)}`; // 外幣通常顯示整數，例如韓元
+        }
+        state.lastResult = resultNum; // 儲存原始結果
+        
+        setTimeout(() => {
+            elRes.textContent = resultText;
+            elRes.classList.remove('updating');
+        }, 100); // 短暫延遲讓 CSS transition 生效
+    }
+
+    /**
+     * 根據當前狀態更新 UI 標籤文字
+     */
+    function setUI() {
+        labelIn.textContent = (state.direction === 'FOREIGN_TO_TWD')
+            ? `輸入外幣（${state.ccy}）或運算式`
+            : '輸入台幣（TWD）或運算式';
+        renderRate();
+    }
+    
+    /**
+     * 更新匯率：優先從快取讀取，若過期或強制更新則從 API 獲取
+     * @param {boolean} force - 是否強制從 API 更新
+     */
+    async function updateRate(force = false) {
+        elRateInfo.classList.add('loading');
+        try {
+            const item = getItem(state.ccy);
+            const now = Date.now();
+            const active = item.active || 'online';
+            const stale = !item.ts || (now - item.ts > ONE_DAY);
+
+            // 如果是手動模式，直接使用手動匯率
+            if (active === 'manual' && typeof item.manualRateFT === 'number') {
+                state.rateFT = item.manualRateFT;
+                // 注意：手動匯率的顯示仍然會透過 nfRate 格式化，因此也會是三位小數
+                return;
+            }
+            // 如果快取未過期且非強制更新，使用快取
+            if (!force && !stale && typeof item.onlineRateFT === 'number') {
+                state.rateFT = item.onlineRateFT;
+                return;
+            }
+            // 否則，從 API 獲取
+            const { rateFT, ts } = await fetchRateFT(state.ccy);
+            state.rateFT = rateFT;
+            setItem(state.ccy, { ...item, onlineRateFT: rateFT, ts: ts || now, active: 'online' });
+        } catch (error) {
+            console.error("Rate update failed:", error);
+            // 發生錯誤時，使用備用匯率
+            const item = getItem(state.ccy);
+            state.rateFT = (item.active === 'manual' && typeof item.manualRateFT === 'number') ? item.manualRateFT
+                : (typeof item.onlineRateFT === 'number') ? item.onlineRateFT
+                : DEFAULT_RATES_FT[state.ccy];
+        } finally {
+            renderRate();
+            render();
+            elRateInfo.classList.remove('loading');
+        }
+    }
+
+
+    // ============= 事件綁定 =============
+    elCcy.addEventListener('change', async () => {
+        state.ccy = elCcy.value;
+        await updateRate(true);
+        setUI();
+    });
+
+    elSwap.addEventListener('click', () => {
+        const lastInput = safeEvalExpr(elIn.value);
+        state.direction = (state.direction === 'FOREIGN_TO_TWD') ? 'TWD_TO_FOREIGN' : 'FOREIGN_TO_TWD';
+        // 智慧互換：將上次的結果代入輸入框
+        if (state.lastResult > 0) {
+            // 對結果進行合理的四捨五入以方便再次輸入
+            const precision = state.direction === 'FOREIGN_TO_TWD' ? 0 : 2;
+            elIn.value = parseFloat(state.lastResult.toFixed(precision));
+        } else if (lastInput > 0) {
+             elIn.value = lastInput;
+        }
+        setUI();
+        render();
+        elIn.select();
+    });
+
+    elClr.addEventListener('click', () => {
+        elIn.value = '';
+        render();
+        elIn.focus();
+    });
+
     elRefresh.addEventListener('click', () => updateRate(true));
-    applyRate.addEventListener('click', () => { const n = parseFloat((rateInput.value || '').trim()); if (!n || n <= 0) { alert('請輸入有效匯率（> 0），表示「1 TWD 可換多少外幣」'); return; } const item = getItem(state.ccy); setItem(state.ccy, { ...item, manualRateFT: n, active: 'manual' }); state.rateFT = n; renderRate(); render(); });
-    restoreOnline.addEventListener('click', () => { const item = getItem(state.ccy); setItem(state.ccy, { ...item, active: 'online' }); rateInput.value = ''; updateRate(true); });
-    copyBtn.addEventListener('click', () => { const resultToCopy = state.lastResult; if (typeof resultToCopy === 'number' && resultToCopy > 0) { const precision = state.direction === 'FOREIGN_TO_TWD' ? 2 : 0; navigator.clipboard.writeText(resultToCopy.toFixed(precision)).then(() => { const originalIcon = copyBtn.innerHTML; copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="var(--brand)"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`; setTimeout(() => { copyBtn.innerHTML = originalIcon; }, 1500); }); } });
+
+    applyRate.addEventListener('click', () => {
+        const n = parseFloat((rateInput.value || '').trim());
+        if (!n || n <= 0) {
+            alert('請輸入有效匯率（> 0），表示「1 TWD 可換多少外幣」');
+            return;
+        }
+        const item = getItem(state.ccy);
+        setItem(state.ccy, { ...item, manualRateFT: n, active: 'manual' });
+        state.rateFT = n;
+        renderRate();
+        render();
+    });
+
+    restoreOnline.addEventListener('click', () => {
+        const item = getItem(state.ccy);
+        setItem(state.ccy, { ...item, active: 'online' });
+        rateInput.value = '';
+        updateRate(true);
+    });
+
+
+
+    copyBtn.addEventListener('click', () => {
+        const resultToCopy = state.lastResult;
+        if (typeof resultToCopy === 'number' && resultToCopy > 0) {
+            const precision = state.direction === 'FOREIGN_TO_TWD' ? 2 : 0; // TWD顯示兩位小數，外幣顯示整數
+            navigator.clipboard.writeText(resultToCopy.toFixed(precision)).then(() => {
+                const originalIcon = copyBtn.innerHTML;
+                copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="var(--brand)"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
+                setTimeout(() => { copyBtn.innerHTML = originalIcon; }, 1500);
+            });
+        }
+    });
+
     elIn.addEventListener('input', render);
-    (async function init() { elCcy.value = state.ccy; const item = getItem(state.ccy); state.rateFT = (item.active === 'manual' && typeof item.manualRateFT === 'number') ? item.manualRateFT : (typeof item.onlineRateFT === 'number') ? item.onlineRateFT : DEFAULT_RATES_FT[state.ccy]; setUI(); await updateRate(); })();
+
+    // ============= 初始化 =============
+    (async function init() {
+        elCcy.value = state.ccy;
+        const item = getItem(state.ccy);
+        state.rateFT = (item.active === 'manual' && typeof item.manualRateFT === 'number') ? item.manualRateFT
+            : (typeof item.onlineRateFT === 'number') ? item.onlineRateFT
+            : DEFAULT_RATES_FT[state.ccy];
+        setUI();
+        await updateRate();
+    })();
 </script>
 </body>
 </html>
