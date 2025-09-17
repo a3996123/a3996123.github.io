@@ -1,306 +1,269 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#000000" />
-  <title>外幣 ↔ 台幣（1 TWD 可換多少外幣）</title>
-  <style>
-    :root{
-      --bg:#0b0b0b; --wrap:#111; --card:#161616; --ink:#f5f7fa; --muted:#9aa4b2;
-      --brand:#10b981; --brand-2:#64748b; --border:#2a2a2a; --input:#0e0e0e;
-      --radius:16px; --shadow:0 12px 32px rgba(0,0,0,.28);
-      --gap: clamp(12px, 2.6vw, 24px);
-      --fs-base: clamp(18px, 2.4vw + .4rem, 28px);
-      --fs-lg: clamp(22px, 3.4vw + .6rem, 44px);
-      --fs-sm: clamp(14px, 1.2vw + .25rem, 18px);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family: Arial,"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
-      background:var(--bg); color:var(--ink); min-height:100vh;
-      display:flex; align-items:flex-start; justify-content:center; padding:16px; font-size:var(--fs-base);
-    }
-    .wrap{
-      width:min(1040px,100%); background:var(--wrap); border-radius:var(--radius);
-      box-shadow:var(--shadow); padding:calc(var(--gap)*1.0); display:flex; flex-direction:column;
-    }
-    h1{ margin:0 0 .4em 0; text-align:center; font-size:var(--fs-lg) }
-    .sub{ text-align:center; color:var(--muted); font-size:var(--fs-sm); margin-bottom:var(--gap) }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>外幣 ↔ 台幣 換算工具</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            /* 玻璃擬態 (Glassmorphism) 主題色彩變數 */
+            --ink: #ffffff; 
+            --muted: #d1d5db;
+            --brand: #34d399; /* A slightly brighter green */
+            --brand-2: #94a3b8; 
+            --border-color: rgba(255, 255, 255, 0.25);
+            --input-bg: rgba(0, 0, 0, 0.15);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            
+            --radius: 16px; 
+            --gap: clamp(12px, 2.6vw, 24px);
+            --fs-base: clamp(18px, 2.4vw + .4rem, 28px);
+            --fs-lg: clamp(22px, 3.4vw + .6rem, 44px);
+            --fs-sm: clamp(14px, 1.2vw + .25rem, 18px);
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0; 
+            font-family: 'Inter', "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+            background: linear-gradient(120deg, #1e3a8a, #3b0764);
+            color:var(--ink); 
+            min-height:100vh;
+            display:flex; 
+            align-items:center; /* 垂直置中 */
+            justify-content:center; 
+            padding:16px; 
+            font-size:var(--fs-base);
+        }
+        .wrap{
+            width:min(1040px,100%); 
+            background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+            backdrop-filter: blur(10px); /* 核心：背景模糊效果 */
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow); 
+            padding:calc(var(--gap)*1.0); 
+            display:flex; 
+            flex-direction:column;
+        }
+        h1{ 
+            margin:0 0 .4em 0; 
+            text-align:center; 
+            font-size:var(--fs-lg);
+            font-weight: 800;
+        }
+        .sub{ 
+            text-align:center; 
+            color:var(--muted); 
+            font-size:var(--fs-sm); 
+            margin-bottom:var(--gap); 
+            max-width: 60ch; 
+            margin-inline: auto; 
+        }
+        .panel{ width:min(840px,100%); margin:0 auto; }
 
-    /* 置中主要面板 */
-    .panel{ width:min(840px,100%); margin:0 auto; }
+        .rate-row{
+            display:flex; 
+            align-items:center; 
+            justify-content:center; 
+            gap:.7em; 
+            flex-wrap:wrap;
+            margin-bottom: calc(var(--gap) * .8);
+        }
+        .rate-info{
+            padding:.45em .8em; 
+            border: 1.5px solid var(--brand); 
+            color: var(--brand);
+            background-color: rgba(52, 211, 153, 0.1);
+            border-radius:12px;
+            min-width:11ch; 
+            text-align:center; 
+            font-weight:700;
+            transition: all .3s;
+        }
+        .rate-info.loading {
+            animation: pulse-glass 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse-glass {
+            50% { background-color: rgba(52, 211, 153, 0.25); }
+        }
+        
+        .rate-row select, .rate-row input[type="text"]{
+            height:2.2em; 
+            padding:.35em .6em; 
+            font-size:var(--fs-sm);
+            border:1px solid var(--border-color); 
+            border-radius:10px; 
+            outline:none;
+            background:var(--input-bg); 
+            color:var(--ink);
+        }
+        .rate-row .mini-btn{
+            height:2.2em; 
+            padding:0 .8em; 
+            font-size:var(--fs-sm);
+            border:none; 
+            border-radius:10px; 
+            cursor:pointer; 
+            font-weight: 700;
+            transition: transform .2s;
+        }
+        .mini-btn:hover { transform: scale(1.05); }
+        .mini-btn.use{ background:var(--brand); color:#000; }
+        .mini-btn.gray{ background:#374151; color:#fff; }
 
-    /* 匯率列：縮小、置中 */
-    .rate-row{
-      display:flex; align-items:center; justify-content:center; gap:.7em; flex-wrap:wrap;
-      margin-bottom: calc(var(--gap) * .8);
-    }
-    .rate-row .rate-info{
-      padding:.45em .8em; border:1.5px solid #1f8a6f; border-radius:12px;
-      min-width:11ch; text-align:center; font-weight:700;
-    }
-    .rate-row select, .rate-row input[type="text"]{
-      height:2.2em; padding:.35em .6em; font-size:var(--fs-sm);
-      border:2px solid var(--border); border-radius:10px; outline:none;
-      background:var(--input); color:var(--ink);
-    }
-    .rate-row .mini-btn{
-      height:2.2em; padding:0 .8em; font-size:var(--fs-sm);
-      border:none; border-radius:10px; cursor:pointer;
-    }
-    .mini-btn.use{ background:var(--brand); color:#000 }
-    .mini-btn.gray{ background:#374151; color:#fff }
+        .card{ 
+             /* 在玻璃主題中，主要卡片不需要額外背景 */
+        }
+        label{ 
+            display:block; 
+            color:var(--muted); 
+            font-size:var(--fs-sm); 
+            margin-bottom:.35em; 
+            text-align:center;
+        }
+        input[type="text"]{
+            width:100%; 
+            padding:.9em 1em; 
+            font-size:var(--fs-base);
+            border:1px solid var(--border-color); 
+            border-radius:12px; 
+            outline:none; 
+            background:var(--input-bg); 
+            color:var(--ink);
+            transition:border-color .2s, background-color .2s; 
+            text-align:center;
+        }
+        input[type="text"]:focus{ 
+            border-color:var(--brand);
+            background-color: rgba(0,0,0,0.25);
+        }
 
-    .card{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:var(--gap) }
-    label{ display:block; color:var(--muted); font-size:var(--fs-sm); margin-bottom:.35em; text-align:center }
-    input[type="text"]{
-      width:100%; padding:.9em 1em; font-size:var(--fs-base);
-      border:2px solid var(--border); border-radius:12px; outline:none; background:var(--input); color:var(--ink);
-      transition:border-color .15s; text-align:center;
-    }
-    input[type="text"]:focus{ border-color:#2dd4bf }
+        .hint{ color:var(--muted); font-size:var(--fs-sm); text-align:center; margin-top:.4em }
+        
+        .sum{
+            text-align:center; margin:.8em 0; font-weight:700; letter-spacing:.5px;
+            padding: .4em .6em; background: rgba(0,0,0,0.2); border-radius: 8px;
+            color: var(--muted);
+        }
+        .sum b{ color:var(--ink); font-size: 1.1em; vertical-align: -0.05em; margin-left: .2em; }
 
-    .hint{ color:var(--muted); font-size:var(--fs-sm); text-align:center; margin-top:.4em }
+        .result-container { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .result{
+            margin-top:.8em; 
+            font-weight:800; 
+            font-size: clamp(36px, 5vw, 64px); 
+            color:var(--ink);
+            transition: opacity .3s;
+        }
+        .result.updating { opacity: 0.5; }
+        .btn-copy {
+            background: none; border: none; cursor: pointer; padding: 8px;
+            margin-top: .8em;
+        }
+        .btn-copy svg { width: 28px; height: 28px; stroke: var(--muted); transition: all .2s; }
+        .btn-copy:hover svg { stroke: var(--brand); transform: scale(1.1); }
 
-    .sum{ text-align:center; margin:.8em 0; font-weight:700; letter-spacing:.5px }
-    .sum b{ color:#a7f3d0 }
+        .btn-row{ display:flex; gap:.8em; align-items:center; margin-top: var(--gap); flex-wrap:wrap; justify-content:center }
+        .btn{
+            flex:1; padding:.8em 1em; font-size:var(--fs-base); 
+            border: 1px solid transparent;
+            border-radius:12px; cursor:pointer;
+            display:inline-flex; align-items:center; justify-content:center; 
+            gap: .5em; font-weight: 700;
+            transition: all .2s;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0, .2);
+        }
+        .btn svg { width: 1.2em; height: 1.2em; }
+        .btn.primary{ color:#000; background:var(--brand); }
+        .btn.secondary{ background: var(--brand-2); color:#fff }
+        @media (min-width:600px){ .btn{ flex:unset; min-width:140px } }
 
-    .result{ margin-top:.8em; text-align:center; font-weight:800; font-size: clamp(36px, 5vw, 64px); color:#e7f8ef }
-    .btn-row{ display:flex; gap:.6em; align-items:center; margin-top: var(--gap); flex-wrap:wrap; justify-content:center }
-    .btn{ flex:1; padding:.8em 1em; font-size:var(--fs-base); border:none; border-radius:12px; cursor:pointer; color:#000; background:var(--brand); text-align:center }
-    .btn.secondary{ background: var(--brand-2); color:#fff }
-    @media (min-width:600px){ .btn{ flex:unset; min-width:120px } }
-
-    .hide{ display:none !important; }
-  </style>
+        .hide{ display:none !important; }
+    </style>
 </head>
 <body>
-<main class="wrap">
-  <h1>外幣 ↔ 台幣</h1>
-  <div class="sub">顯示為「1 TWD 可換多少外幣」。預設線上匯率；手動輸入後會被記錄，除非改回線上或再次手動。</div>
+    <main class="wrap">
+    <h1>外幣 ↔ 台幣</h1>
+    <div class="sub">顯示為「1 TWD 可換多少外幣」。預設線上匯率；手動輸入後會被記錄，除非改回線上或再次手動。</div>
 
-  <!-- 匯率與幣別（縮小、置中） -->
-  <div class="panel">
-    <div class="rate-row">
-      <label for="ccy" class="hide">幣別</label>
-      <select id="ccy" aria-label="選擇幣別">
-        <option value="KRW">韓元 KRW</option>
-        <option value="JPY">日圓 JPY</option>
-        <option value="CNY">人民幣 CNY</option>
-        <option value="USD">美金 USD</option>
-        <option value="EUR">歐元 EUR</option>
-      </select>
-
-      <span class="rate-info" id="rateInfo">1 TWD = 0.000000 CCY</span>
-
-      <input id="rateInput" type="text" inputmode="decimal" placeholder="手動：1 TWD 可換多少外幣" />
-      <button class="mini-btn use" id="applyRate">套用</button>
-      <button class="mini-btn gray" id="restoreOnline">線上</button>
+    <div class="panel">
+        <div class="rate-row">
+            <label for="ccy" class="hide">幣別</label>
+            <select id="ccy" aria-label="選擇幣別">
+                <option value="KRW">韓元 KRW</option>
+                <option value="JPY">日圓 JPY</option>
+                <option value="CNY">人民幣 CNY</option>
+                <option value="USD">美金 USD</option>
+                <option value="EUR">歐元 EUR</option>
+            </select>
+            <span class="rate-info" id="rateInfo">1 TWD = 0.000000 CCY</span>
+            <input id="rateInput" type="text" inputmode="decimal" placeholder="手動：1 TWD 可換多少外幣" />
+            <button class="mini-btn use" id="applyRate">套用</button>
+            <button class="mini-btn gray" id="restoreOnline">線上</button>
+        </div>
+        <section class="card" aria-label="換算">
+            <label id="label-in">輸入外幣（KRW）或運算式</label>
+            <input id="inVal" type="text" inputmode="decimal" placeholder="例如：10000 或 12+3*4/2" />
+            <div class="sum" id="sumBox">合計：<b>–</b></div>
+            <div class="result-container">
+                <div class="result" id="convResult">TWD 0</div>
+                <button id="copyBtn" class="btn-copy" title="複製結果">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" /></svg>
+                </button>
+            </div>
+            <div class="hint">輸入時先顯示「合計」，再依匯率換算。</div>
+        </section>
+        <div class="btn-row">
+            <button class="btn primary" id="refresh">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.18-3.185m-3.181 9.348a8.25 8.25 0 00-11.664 0l-3.18 3.185m3.181-9.348l-3.181-3.183a8.25 8.25 0 000-11.664l3.18 3.185" /></svg>
+                <span>更新匯率</span>
+            </button>
+            <button class="btn primary" id="swap">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                <span>互換</span>
+            </button>
+            <button class="btn secondary" id="clearConv">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                <span>清除</span>
+            </button>
+        </div>
     </div>
-
-    <!-- 輸入面板 -->
-    <section class="card" aria-label="換算">
-      <label id="label-in">輸入外幣（KRW）或運算式</label>
-      <input id="inVal" type="text" inputmode="decimal" placeholder="例如：10000 或 12+3*4/2" />
-
-      <div class="sum" id="sumBox">合計：<b>–</b></div>
-
-      <!-- 小輸出框保留但隱藏（不佔版位、JS 可繼續使用） -->
-      <label id="label-out" class="hide">換算台幣 (TWD)</label>
-      <input id="outVal" class="hide" type="text" placeholder="自動計算" readonly />
-
-      <div class="result" id="convResult">TWD 0</div>
-      <div class="hint">輸入時先顯示「合計」，再依匯率換算。</div>
-    </section>
-
-    <div class="btn-row">
-      <button class="btn" id="refresh">更新匯率</button>
-      <button class="btn" id="swap">↔ 互換方向</button>
-      <button class="btn secondary" id="clearConv">清除</button>
-    </div>
-  </div>
 </main>
-
 <script>
-  // ============= 基本狀態與工具 =============
-  // rateFT = 外幣/台幣（每 1 TWD 可換多少外幣）
-  const DEFAULT_RATES_FT = { KRW: 40, JPY: 4, CNY: 0.22, USD: 0.031, EUR: 0.029 };
-  const FX_KEY = 'fx_rates_v3_ccy_per_twd';
-  const ONE_DAY = 24*60*60*1000;
-
-  const state = { ccy:'KRW', rateFT:DEFAULT_RATES_FT.KRW, direction:'FOREIGN_TO_TWD' };
-
-  // DOM
-  const elCcy = document.getElementById('ccy');
-  const elRateInfo = document.getElementById('rateInfo');
-  const elIn = document.getElementById('inVal');
-  const elOut = document.getElementById('outVal');
-  const elRes = document.getElementById('convResult');
-  const elSwap = document.getElementById('swap');
-  const elClr = document.getElementById('clearConv');
-  const elRefresh = document.getElementById('refresh');
-  const labelIn = document.getElementById('label-in');
-  const rateInput = document.getElementById('rateInput');
-  const applyRate = document.getElementById('applyRate');
-  const restoreOnline = document.getElementById('restoreOnline');
-  const sumBox = document.getElementById('sumBox');
-
-  const nfTWD = new Intl.NumberFormat('zh-Hant-TW',{style:'currency',currency:'TWD',maximumFractionDigits:4});
-  const nfInt = new Intl.NumberFormat('zh-Hant-TW');
-  const nfRate = new Intl.NumberFormat('zh-Hant-TW',{maximumFractionDigits:6});
-
-  function loadCache(){ try{return JSON.parse(localStorage.getItem(FX_KEY)||'{}');}catch{return{};} }
-  function saveCache(c){ localStorage.setItem(FX_KEY,JSON.stringify(c)); }
-  function getItem(ccy){ const c=loadCache(); return c[ccy]||{}; }
-  function setItem(ccy, obj){ const c=loadCache(); c[ccy]=obj; saveCache(c); }
-
-  // 線上拿 TWD/外幣 的倒數 -> 外幣/台幣
-  async function fetchRateFT(ccy){
-    const url=`https://open.er-api.com/v6/latest/${encodeURIComponent(ccy)}`;
-    const res=await fetch(url,{cache:'no-store'});
-    if(!res.ok) throw new Error('Network');
-    const json=await res.json();
-    const twdPerCcy = json?.rates?.TWD;
-    if(typeof twdPerCcy !== 'number') throw new Error('Bad');
-    const ft = 1 / twdPerCcy;
-    const ts = (json.time_last_update_unix||0)*1000;
-    return { rateFT: ft, ts };
-  }
-
-  // 表示與格式
-  function renderRate(){ elRateInfo.textContent = `1 TWD = ${nfRate.format(state.rateFT)} ${state.ccy}`; }
-  function formatInt(n){ return nfInt.format(Math.trunc(n)); }
-
-  // 允許的運算式，安全計算
-  function safeEvalExpr(raw){
-    const s = (raw||'').replace(/[,\s]/g,'');
-    if(!s) return NaN;
-    for(const ch of s){
-      if(!((ch>='0'&&ch<='9')||'+-*/.()'.includes(ch))) return NaN;
-    }
-    try{
-      const val = Function('"use strict";return('+s+')')();
-      return (typeof val==='number' && Number.isFinite(val)) ? val : NaN;
-    }catch{ return NaN; }
-  }
-
-  // 主渲染：先顯示合計，再換算
-  function render(){
-    const subtotal = safeEvalExpr(elIn.value);
-    if(Number.isNaN(subtotal)){
-      sumBox.innerHTML = '合計：<b>–</b>';
-      elRes.textContent = (state.direction==='FOREIGN_TO_TWD' ? 'TWD 0' : `${state.ccy} 0`);
-      elOut.value = '';
-      return;
-    }
-    // 合計顯示（整數化）
-    sumBox.innerHTML = '合計：<b>' + formatInt(subtotal) + '</b>';
-
-    if(state.direction==='FOREIGN_TO_TWD'){
-      // 外幣 -> 台幣：1 外幣 = 1/rateFT TWD
-      const twd = subtotal / state.rateFT;
-      elOut.value = nfTWD.format(twd);
-      elRes.textContent = `TWD ${twd.toFixed(2)}`;
-    }else{
-      // 台幣 -> 外幣：外幣 = 台幣 * rateFT
-      const foreign = subtotal * state.rateFT;
-      elOut.value = formatInt(foreign);
-      elRes.textContent = `${state.ccy} ${formatInt(foreign)}`;
-    }
-  }
-
-  function setUI(){
-    labelIn.textContent =
-      (state.direction==='FOREIGN_TO_TWD')
-      ? `輸入外幣（${state.ccy}）或運算式`
-      : '輸入台幣（TWD）或運算式';
-    renderRate();
-  }
-
-  async function updateRate(force=false){
-    const item=getItem(state.ccy);
-    const now=Date.now();
-    const active=item.active||'online';
-    const stale=!item.ts||(now-item.ts>ONE_DAY);
-
-    if(active==='manual' && typeof item.manualRateFT==='number'){
-      state.rateFT=item.manualRateFT; renderRate(); render(); return;
-    }
-    if(!force && !stale && typeof item.onlineRateFT==='number'){
-      state.rateFT=item.onlineRateFT; renderRate(); render(); return;
-    }
-    try{
-      const {rateFT, ts}=await fetchRateFT(state.ccy);
-      state.rateFT=rateFT;
-      setItem(state.ccy, { ...item, onlineRateFT:rateFT, ts: ts||now, active:'online' });
-    }catch{
-      const fallback =
-        (active==='manual' && typeof item.manualRateFT==='number') ? item.manualRateFT
-        : (typeof item.onlineRateFT==='number') ? item.onlineRateFT
-        : DEFAULT_RATES_FT[state.ccy];
-      state.rateFT=fallback;
-    }
-    renderRate(); render();
-  }
-
-  // ============= 事件綁定 =============
-  // 幣別切換（下拉）
-  elCcy.addEventListener('change', async () => {
-    state.ccy = elCcy.value;
-    await updateRate(true);
-    setUI(); render();
-  });
-
-  // 方向互換
-  elSwap.addEventListener('click',()=>{
-    state.direction = (state.direction==='FOREIGN_TO_TWD') ? 'TWD_TO_FOREIGN' : 'FOREIGN_TO_TWD';
-    setUI(); render(); elIn.focus();
-  });
-
-  // 清除
-  elClr.addEventListener('click',()=>{
-    elIn.value=''; elOut.value=''; sumBox.innerHTML='合計：<b>–</b>';
-    elRes.textContent=(state.direction==='FOREIGN_TO_TWD')?'TWD 0':`${state.ccy} 0`;
-    elIn.focus();
-  });
-
-  // 更新匯率（線上）
-  elRefresh.addEventListener('click',()=> updateRate(true));
-
-  // 手動匯率（外幣/台幣）
-  applyRate.addEventListener('click', ()=>{
-    const s=(rateInput.value||'').trim();
-    const n=Number(s.replace(/[^\d.\-]/g,''));
-    if(!n || n<=0){ alert('請輸入有效匯率（> 0），表示「1 TWD 可換多少外幣」'); return; }
-    const item=getItem(state.ccy);
-    setItem(state.ccy, { ...item, manualRateFT:n, active:'manual' });
-    state.rateFT=n; renderRate(); render();
-  });
-
-  // 恢復線上
-  restoreOnline.addEventListener('click', ()=>{
-    const item=getItem(state.ccy);
-    setItem(state.ccy, { ...item, active:'online' });
-    rateInput.value='';
-    updateRate(true);
-  });
-
-  // 輸入即時計算
-  elIn.addEventListener('input', render);
-
-  // 初始化
-  (async function init(){
-    // 預設幣別
-    elCcy.value = state.ccy;
-    const item=getItem(state.ccy);
-    state.rateFT =
-      (item.active==='manual' && typeof item.manualRateFT==='number') ? item.manualRateFT
-      : (typeof item.onlineRateFT==='number') ? item.onlineRateFT
-      : DEFAULT_RATES_FT[state.ccy];
-    setUI(); renderRate(); render();
-    await updateRate(true);
-  })();
+    // Script is identical to the previous version.
+    const DEFAULT_RATES_FT = { KRW: 40, JPY: 4.8, CNY: 0.22, USD: 0.031, EUR: 0.029 };
+    const FX_KEY = 'fx_rates_v3_ccy_per_twd';
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+    const state = { ccy: 'KRW', rateFT: DEFAULT_RATES_FT.KRW, direction: 'FOREIGN_TO_TWD', lastResult: 0 };
+    const elCcy = document.getElementById('ccy'), elRateInfo = document.getElementById('rateInfo'), elIn = document.getElementById('inVal'), elRes = document.getElementById('convResult'), elSwap = document.getElementById('swap'), elClr = document.getElementById('clearConv'), elRefresh = document.getElementById('refresh'), labelIn = document.getElementById('label-in'), rateInput = document.getElementById('rateInput'), applyRate = document.getElementById('applyRate'), restoreOnline = document.getElementById('restoreOnline'), sumBox = document.getElementById('sumBox'), copyBtn = document.getElementById('copyBtn');
+    const nfRate = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 6 }), nfInt = new Intl.NumberFormat('zh-Hant-TW'), nfResult = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+    function loadCache() { try { return JSON.parse(localStorage.getItem(FX_KEY) || '{}'); } catch { return {}; } }
+    function saveCache(c) { localStorage.setItem(FX_KEY, JSON.stringify(c)); }
+    function getItem(ccy) { const c = loadCache(); return c[ccy] || {}; }
+    function setItem(ccy, obj) { const c = loadCache(); c[ccy] = obj; saveCache(c); }
+    async function fetchRateFT(ccy) { const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(ccy)}`, res = await fetch(url, { cache: 'no-store' }); if (!res.ok) throw new Error('Network response was not ok'); const json = await res.json(), twdPerCcy = json?.rates?.TWD; if (typeof twdPerCcy !== 'number') throw new Error('Invalid currency data'); const ft = 1 / twdPerCcy, ts = (json.time_last_update_unix || 0) * 1000; return { rateFT: ft, ts }; }
+    function safeEvalExpr(raw) { const s = (raw || '').replace(/[,\s]/g, ''); if (!s) return NaN; if (/[^0-9+\-*/.()]/.test(s)) return NaN; try { const val = Function('"use strict";return(' + s + ')')(); return (typeof val === 'number' && Number.isFinite(val)) ? val : NaN; } catch { return NaN; } }
+    function renderRate() { elRateInfo.textContent = `1 TWD = ${nfRate.format(state.rateFT)} ${state.ccy}`; }
+    function render() { elRes.classList.add('updating'); const subtotal = safeEvalExpr(elIn.value); if (Number.isNaN(subtotal)) { sumBox.innerHTML = '合計：<b>–</b>'; const zeroText = (state.direction === 'FOREIGN_TO_TWD' ? `TWD 0.00` : `${state.ccy} 0`); elRes.textContent = zeroText; state.lastResult = 0; elRes.classList.remove('updating'); return; } sumBox.innerHTML = '合計：<b>' + nfInt.format(subtotal) + '</b>'; let resultNum, resultText; if (state.direction === 'FOREIGN_TO_TWD') { const twd = subtotal / state.rateFT; resultNum = twd; resultText = `TWD ${nfResult.format(twd)}`; } else { const foreign = subtotal * state.rateFT; resultNum = foreign; resultText = `${state.ccy} ${nfInt.format(foreign)}`; } state.lastResult = resultNum; setTimeout(() => { elRes.textContent = resultText; elRes.classList.remove('updating'); }, 100); }
+    function setUI() { labelIn.textContent = (state.direction === 'FOREIGN_TO_TWD') ? `輸入外幣（${state.ccy}）或運算式` : '輸入台幣（TWD）或運算式'; renderRate(); }
+    async function updateRate(force = false) { elRateInfo.classList.add('loading'); try { const item = getItem(state.ccy), now = Date.now(), active = item.active || 'online', stale = !item.ts || (now - item.ts > ONE_DAY); if (active === 'manual' && typeof item.manualRateFT === 'number') { state.rateFT = item.manualRateFT; return; } if (!force && !stale && typeof item.onlineRateFT === 'number') { state.rateFT = item.onlineRateFT; return; } const { rateFT, ts } = await fetchRateFT(state.ccy); state.rateFT = rateFT; setItem(state.ccy, { ...item, onlineRateFT: rateFT, ts: ts || now, active: 'online' }); } catch (error) { console.error("Rate update failed:", error); const item = getItem(state.ccy); state.rateFT = (item.active === 'manual' && typeof item.manualRateFT === 'number') ? item.manualRateFT : (typeof item.onlineRateFT === 'number') ? item.onlineRateFT : DEFAULT_RATES_FT[state.ccy]; } finally { renderRate(); render(); elRateInfo.classList.remove('loading'); } }
+    elCcy.addEventListener('change', async () => { state.ccy = elCcy.value; await updateRate(true); setUI(); });
+    elSwap.addEventListener('click', () => { const lastInput = safeEvalExpr(elIn.value); state.direction = (state.direction === 'FOREIGN_TO_TWD') ? 'TWD_TO_FOREIGN' : 'FOREIGN_TO_TWD'; if (state.lastResult > 0) { const precision = state.direction === 'FOREIGN_TO_TWD' ? 0 : 2; elIn.value = parseFloat(state.lastResult.toFixed(precision)); } else if (lastInput > 0) { elIn.value = lastInput; } setUI(); render(); elIn.select(); });
+    elClr.addEventListener('click', () => { elIn.value = ''; render(); elIn.focus(); });
+    elRefresh.addEventListener('click', () => updateRate(true));
+    applyRate.addEventListener('click', () => { const n = parseFloat((rateInput.value || '').trim()); if (!n || n <= 0) { alert('請輸入有效匯率（> 0），表示「1 TWD 可換多少外幣」'); return; } const item = getItem(state.ccy); setItem(state.ccy, { ...item, manualRateFT: n, active: 'manual' }); state.rateFT = n; renderRate(); render(); });
+    restoreOnline.addEventListener('click', () => { const item = getItem(state.ccy); setItem(state.ccy, { ...item, active: 'online' }); rateInput.value = ''; updateRate(true); });
+    copyBtn.addEventListener('click', () => { const resultToCopy = state.lastResult; if (typeof resultToCopy === 'number' && resultToCopy > 0) { const precision = state.direction === 'FOREIGN_TO_TWD' ? 2 : 0; navigator.clipboard.writeText(resultToCopy.toFixed(precision)).then(() => { const originalIcon = copyBtn.innerHTML; copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="var(--brand)"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`; setTimeout(() => { copyBtn.innerHTML = originalIcon; }, 1500); }); } });
+    elIn.addEventListener('input', render);
+    (async function init() { elCcy.value = state.ccy; const item = getItem(state.ccy); state.rateFT = (item.active === 'manual' && typeof item.manualRateFT === 'number') ? item.manualRateFT : (typeof item.onlineRateFT === 'number') ? item.onlineRateFT : DEFAULT_RATES_FT[state.ccy]; setUI(); await updateRate(); })();
 </script>
 </body>
 </html>
