@@ -3,38 +3,197 @@
 <head>
   <meta charset="UTF-8" />
   <title>Excel QC Comparator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { font-family: sans-serif; background: #111; color: #fff; padding: 1em; }
-    select, button, input { margin: 0.5em; padding: 0.5em; }
-    table { border-collapse: collapse; margin-top: 1em; width: 100%; }
-    th, td { border: 1px solid #666; padding: 0.5em; text-align: center; }
-    .low { background-color: rgba(255, 0, 0, 0.6); }
-    .high { background-color: rgba(0, 255, 0, 0.3); }
-  
-  
-  .l1 { color:#fff; }
-  .i2 { background:#111; }
-  .n3 { border:0; }
-  .w4 { margin:0; }
-  .e5 { padding:0; }
-  .i6 { font-size:1em; }
-  ._0 { line-height:1; }
-  ._9 { letter-spacing:0; }
-  ._2 { display:inline; }
-  ._6 { text-align:left; }
+    :root {
+      --bg-color: #1d1e22;
+      --surface-color: #2c2d32;
+      --primary-color: #4a8eff;
+      --primary-hover: #6ea3ff;
+      --text-color: #e0e0e0;
+      --border-color: #444;
+      --low-bg: rgba(255, 107, 107, 0.2);
+      --low-text: #ff8c8c;
+      --high-bg: rgba(29, 201, 141, 0.2);
+      --high-text: #59f9c7;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      padding: 2em;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 95vw; /* 【修改】增加最大寬度，讓表格在寬螢幕下有更多空間 */
+    }
+
+    .controls-panel {
+      background: var(--surface-color);
+      padding: 2em;
+      border-radius: 12px;
+      margin-bottom: 2em;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      border: 1px solid var(--border-color);
+      text-align: center;
+    }
+    
+    h2 {
+      font-size: 2.5em;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 1em;
+      text-shadow: 0 0 10px rgba(74, 142, 255, 0.5);
+    }
+
+    .control-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5em;
+    }
+
+    select, button, label {
+      font-size: 1em;
+      font-family: 'Poppins', sans-serif;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-color);
+      color: var(--text-color);
+      padding: 0.8em 1.2em;
+      transition: all 0.3s ease;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 10px rgba(74, 142, 255, 0.5);
+    }
+    
+    #excelFile {
+      display: none;
+    }
+    .file-upload-label {
+      cursor: pointer;
+    }
+    .file-upload-label:hover {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4);
+    }
+    
+    #output {
+      background: var(--surface-color);
+      padding: 2em;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      border: 1px solid var(--border-color);
+      /* 【修改】移除 overflow-x: auto; 以避免出現滾動條 */
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.85em; /* 【修改】微調字體大小 */
+      table-layout: fixed; /* 【新增】讓欄寬更平均分配 */
+      word-break: break-all; /* 【新增】強制長單字或數字換行 */
+    }
+
+    th {
+      background: var(--primary-color);
+      color: white;
+      padding: 0.8em 0.5em; /* 【修改】減少左右內距 */
+      font-weight: 600;
+    }
+    
+    th:first-child { border-top-left-radius: 8px; }
+    th:last-child { border-top-right-radius: 8px; }
+
+    td {
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.7em 0.5em; /* 【修改】減少上下左右內距 */
+      text-align: center;
+      transition: background-color 0.3s ease;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .low {
+      background-color: var(--low-bg);
+      color: var(--low-text);
+      font-weight: 600;
+    }
+
+    .high {
+      background-color: var(--high-bg);
+      color: var(--high-text);
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
-  <h2>Excel QC Comparator</h2>
-  <input type="file" id="excelFile" accept=".xlsx" />
-  <label>選擇分頁：<select id="sheetSelect"></select></label>
-  <label>選擇製造日期（可選）：<select id="dateSelect"><option value="">全部</option></select></label>
-  <button onclick="compareData()">執行比對</button>
-  <div id="output"></div>
+  
+  <div class="container">
+    <div class="controls-panel">
+        <h2>Excel QC Comparator ✨</h2>
+        <div class="control-group">
+            <label for="excelFile" class="file-upload-label">選擇 Excel 檔案</label>
+            <input type="file" id="excelFile" accept=".xlsx" />
+            
+            <label>
+              選擇分頁：
+              <select id="sheetSelect"></select>
+            </label>
+            
+            <label>
+              選擇製造日期（可選）：
+              <select id="dateSelect"><option value="">全部</option></select>
+            </label>
+            
+            <button onclick="compareData()">🚀 執行比對</button>
+        </div>
+    </div>
+    
+    <div id="output"></div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
+    // JavaScript 功能完全不變
     let workbook, refSheetMap = new Map();
 
     document.getElementById('excelFile').addEventListener('change', (e) => {
@@ -43,7 +202,6 @@
         const data = new Uint8Array(e.target.result);
         workbook = XLSX.read(data, { type: 'array' });
 
-        // 建立總表 Map
         const refSheet = XLSX.utils.sheet_to_json(workbook.Sheets['總表'], { header: 1 });
         refSheetMap.clear();
         for (let i = 1; i < refSheet.length; i++) {
@@ -52,7 +210,6 @@
           refSheetMap.set(String(row[1]), row);
         }
 
-        // 建立分頁選單但不觸發讀取日期
         const sheetSelect = document.getElementById('sheetSelect');
         sheetSelect.innerHTML = '<option value="">請選擇</option>';
         workbook.SheetNames.forEach(name => {
