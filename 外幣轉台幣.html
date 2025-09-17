@@ -404,7 +404,9 @@
     // 數字格式化工具
     const nfRate = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 3, minimumFractionDigits: 3 }); 
     const nfInt = new Intl.NumberFormat('zh-Hant-TW');
-    const nfResult = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+    // *** START: 修改 nfResult 的設定以四捨五入到個位數 ***
+    const nfResult = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 0, minimumFractionDigits: 0, roundingMode: 'halfExpand' });
+    // *** END: 修改 nfResult 的設定 ***
 
 
     // ============= localStorage 相關操作 =============
@@ -463,7 +465,7 @@
 
         if (Number.isNaN(subtotal)) {
             sumBox.innerHTML = '<span class="sum-label">合計</span><b>–</b>';
-            const zeroText = (state.direction === 'FOREIGN_TO_TWD' ? `TWD 0.00` : `${state.ccy} 0.00`);
+            const zeroText = (state.direction === 'FOREIGN_TO_TWD' ? `TWD 0` : `${state.ccy} 0.00`); // 0也顯示為整數
             elRes.textContent = zeroText;
             state.lastResult = 0;
             elRes.classList.remove('updating');
@@ -555,7 +557,9 @@
         // 智慧互換：將上次的結果代入輸入框
         if (state.lastResult > 0) {
             // 對結果進行合理的四捨五入以方便再次輸入
-            const precision = state.direction === 'FOREIGN_TO_TWD' ? 0 : 2;
+            // 當前方向是 'FOREIGN_TO_TWD' 時，TWD 顯示整數，所以精度為 0
+            // 當前方向是 'TWD_TO_FOREIGN' 時，外幣顯示整數，所以精度為 0 (nfInt 會處理)
+            const precision = state.direction === 'FOREIGN_TO_TWD' ? 0 : 0; 
             elIn.value = parseFloat(state.lastResult.toFixed(precision));
         } else if (lastInput > 0) {
              elIn.value = lastInput;
@@ -596,7 +600,8 @@
     copyBtn.addEventListener('click', () => {
         const resultToCopy = state.lastResult;
         if (typeof resultToCopy === 'number' && resultToCopy > 0) {
-            const precision = state.direction === 'FOREIGN_TO_TWD' ? 2 : 0; // TWD顯示兩位小數，外幣顯示整數
+            // TWD顯示整數，外幣顯示整數 (nfInt 會處理)
+            const precision = 0; 
             navigator.clipboard.writeText(resultToCopy.toFixed(precision)).then(() => {
                 const originalIcon = copyBtn.innerHTML;
                 copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="var(--brand)"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
@@ -634,7 +639,7 @@
                 // 將運算符號按鈕區塊滾動到視窗底部
                 operatorsRow.scrollIntoView({ 
                     behavior: 'smooth', 
-                    block: 'end' // ***修改為 'end'***
+                    block: 'nearest' 
                 });
             }, 300);
         }
@@ -654,3 +659,4 @@
 </script>
 </body>
 </html>
+
