@@ -167,6 +167,39 @@
             background-color: rgba(0,0,0,0.25);
         }
 
+        /* 運算符號按鈕區塊 */
+        .operators-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px; /* 與上方輸入框的間距 */
+            margin-bottom: var(--gap); /* 與下方元素的間距 */
+            flex-wrap: wrap; /* 允許換行 */
+        }
+        .operator-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--ink);
+            padding: 0.6em 1em;
+            font-size: var(--fs-sm);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .2s;
+            min-width: 48px; /* 確保按鈕有足夠的點擊區域 */
+            text-align: center;
+            font-weight: 700;
+        }
+        .operator-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0, .15);
+        }
+        .operator-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+
         .hint{ color:var(--muted); font-size:var(--fs-sm); text-align:center; margin-top:.4em }
         
         .sum{
@@ -259,6 +292,14 @@
             .btn-copy {
                 margin-top: 0.5em; /* 調整複製按鈕間距 */
             }
+            .operators-row {
+                gap: 6px; /* 小螢幕時按鈕間距微調 */
+            }
+            .operator-btn {
+                font-size: var(--fs-sm); /* 小螢幕時按鈕字體大小 */
+                padding: 0.5em 0.8em;
+                min-width: 40px;
+            }
         }
 
         .hide{ display:none !important; }
@@ -279,7 +320,7 @@
                 <option value="USD">美金 USD</option>
                 <option value="EUR">歐元 EUR</option>
             </select>
-            <span class="rate-info" id="rateInfo">1 TWD = 0.000000 CCY</span>
+            <span class="rate-info" id="rateInfo">1 TWD = 0.000 KRW</span>
             <input id="rateInput" type="text" inputmode="decimal" placeholder="手動匯率" />
             <button class="mini-btn use" id="applyRate">套用</button>
             <button class="mini-btn gray" id="restoreOnline">線上</button>
@@ -294,6 +335,15 @@
                     <span class="sum-label">合計</span>
                     <b>–</b>
                 </div>
+            </div>
+
+            <div class="operators-row">
+                <button class="operator-btn" data-op="(">(</button>
+                <button class="operator-btn" data-op=")">)</button>
+                <button class="operator-btn" data-op="+">+</button>
+                <button class="operator-btn" data-op="-">-</button>
+                <button class="operator-btn" data-op="*">*</button>
+                <button class="operator-btn" data-op="/">/</button>
             </div>
             
             <div class="result-container">
@@ -347,9 +397,9 @@
     const restoreOnline = document.getElementById('restoreOnline');
     const sumBox = document.getElementById('sumBox');
     const copyBtn = document.getElementById('copyBtn');
+    const operatorButtons = document.querySelectorAll('.operator-btn'); // 新增：選取所有運算符號按鈕
 
     // 數字格式化工具
-    // 修改這裡：nfRate 現在只顯示小數點後三位
     const nfRate = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 3, minimumFractionDigits: 3 }); 
     const nfInt = new Intl.NumberFormat('zh-Hant-TW');
     const nfResult = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
@@ -411,7 +461,7 @@
 
         if (Number.isNaN(subtotal)) {
             sumBox.innerHTML = '<span class="sum-label">合計</span><b>–</b>';
-            const zeroText = (state.direction === 'FOREIGN_TO_TWD' ? `TWD 0.00` : `${state.ccy} 0.00`); // 修正為TWD 0.00
+            const zeroText = (state.direction === 'FOREIGN_TO_TWD' ? `TWD 0.00` : `${state.ccy} 0.00`);
             elRes.textContent = zeroText;
             state.lastResult = 0;
             elRes.classList.remove('updating');
@@ -541,8 +591,6 @@
         updateRate(true);
     });
 
-
-
     copyBtn.addEventListener('click', () => {
         const resultToCopy = state.lastResult;
         if (typeof resultToCopy === 'number' && resultToCopy > 0) {
@@ -556,6 +604,26 @@
     });
 
     elIn.addEventListener('input', render);
+
+    // 新增：運算符號按鈕的點擊事件
+    operatorButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const op = button.dataset.op; // 獲取按鈕上的運算符號
+            const currentVal = elIn.value;
+            const cursorStart = elIn.selectionStart; // 獲取當前游標位置
+            const cursorEnd = elIn.selectionEnd;
+
+            // 在游標位置插入符號
+            elIn.value = currentVal.substring(0, cursorStart) + op + currentVal.substring(cursorEnd);
+            
+            // 將游標移動到插入符號之後
+            elIn.selectionStart = cursorStart + op.length;
+            elIn.selectionEnd = cursorStart + op.length;
+
+            elIn.focus(); // 重新獲取焦點
+            render(); // 重新渲染計算結果
+        });
+    });
 
     // ============= 初始化 =============
     (async function init() {
