@@ -346,7 +346,8 @@
                 <button class="operator-btn" data-op="/">/</button>
             </div>
             
-            <div class="result-container" id="resultContainer"> <div class="result" id="convResult">TWD 0.00</div>
+            <div class="result-container" id="resultContainer"> 
+                <div class="result" id="convResult">TWD 0.00</div>
                 <button id="copyBtn" class="btn-copy" title="複製結果">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75" /></svg>
                 </button>
@@ -392,12 +393,12 @@
     const elRefresh = document.getElementById('refresh');
     const labelIn = document.getElementById('label-in');
     const rateInput = document.getElementById('rateInput');
-    const applyRate = document = document.getElementById('applyRate');
+    const applyRate = document.getElementById('applyRate');
     const restoreOnline = document.getElementById('restoreOnline');
     const sumBox = document.getElementById('sumBox');
     const copyBtn = document.getElementById('copyBtn');
     const operatorButtons = document.querySelectorAll('.operator-btn'); 
-    const resultContainer = document.getElementById('resultContainer'); // 新增：換算結果的容器
+    const resultContainer = document.getElementById('resultContainer'); // 換算結果的容器
 
     // 數字格式化工具
     const nfRate = new Intl.NumberFormat('zh-Hant-TW', { maximumFractionDigits: 3, minimumFractionDigits: 3 }); 
@@ -625,14 +626,15 @@
 
     // 新增：輸入框獲取焦點時，滾動到換算結果
     elIn.addEventListener('focus', () => {
-        // 僅在小螢幕（可能是手機）上觸發滾動，避免桌面版不需要的行為
-        if (window.innerWidth <= 300) { // 可以根據需要調整這個閾值
-            setTimeout(() => { // 稍作延遲，確保虛擬鍵盤彈出後再滾動
+        // 僅在小螢幕（可能是手機）上觸發滾動
+        if (window.innerWidth <= 768) { 
+            setTimeout(() => { 
+                // 調整滾動行為為 'start'，確保元素盡可能滾動到視窗頂部
                 resultContainer.scrollIntoView({ 
-                    behavior: 'smooth', // 平滑滾動
-                    block: 'center'    // 將元素滾動到視窗中央
+                    behavior: 'smooth', 
+                    block: 'start' // 修改為 'start'
                 });
-            }, 350); // 300毫秒的延遲
+            }, 300); 
         }
     });
 
@@ -650,4 +652,3 @@
 </script>
 </body>
 </html>
-
