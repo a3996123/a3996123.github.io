@@ -241,6 +241,10 @@
             border-radius: var(--radius);
             padding: calc(var(--gap) / 2);
             border: 1px solid var(--border-color);
+
+            /* 新增：用於控制 scrollIntoView 的緩衝區 */
+            scroll-margin-top: 20px; 
+            scroll-margin-bottom: 20px;
         }
         .result{
             font-weight:800; 
@@ -624,15 +628,14 @@
         });
     });
 
-    // 新增：輸入框獲取焦點時，滾動到換算結果
+    // 輸入框獲取焦點時，滾動到換算結果
     elIn.addEventListener('focus', () => {
         // 僅在小螢幕（可能是手機）上觸發滾動
         if (window.innerWidth <= 768) { 
             setTimeout(() => { 
-                // 調整滾動行為為 'start'，確保元素盡可能滾動到視窗頂部
                 resultContainer.scrollIntoView({ 
                     behavior: 'smooth', 
-                    block: 'start' // 修改為 'start'
+                    block: 'nearest' // ***從 'start' 修改為 'nearest'***
                 });
             }, 300); 
         }
