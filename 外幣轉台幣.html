@@ -626,13 +626,13 @@
     // 新增：輸入框獲取焦點時，滾動到換算結果
     elIn.addEventListener('focus', () => {
         // 僅在小螢幕（可能是手機）上觸發滾動，避免桌面版不需要的行為
-        if (window.innerWidth <= 768) { // 可以根據需要調整這個閾值
+        if (window.innerWidth <= 300) { // 可以根據需要調整這個閾值
             setTimeout(() => { // 稍作延遲，確保虛擬鍵盤彈出後再滾動
                 resultContainer.scrollIntoView({ 
                     behavior: 'smooth', // 平滑滾動
                     block: 'center'    // 將元素滾動到視窗中央
                 });
-            }, 300); // 300毫秒的延遲
+            }, 350); // 300毫秒的延遲
         }
     });
 
@@ -650,3 +650,4 @@
 </script>
 </body>
 </html>
+
