@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>色差計算器 (高效對比版)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --table-bg-color: #1e1e1e;
+            --header-bg-color: #2a2a2a;
+            --border-color: #444;
+            --text-color: #e0e0e0;
+            --text-secondary-color: #b0b0b0;
+            --highlight-color: #00aaff;
+            --input-bg-color: #252525;
+            --row-alt-color: #242424;
+            --result-col-bg: #1a2c3a;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header h1 {
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 30px;
+            color: var(--text-secondary-color);
+        }
+
+        /* 表格外層容器，用於實現響應式滾動 */
+        .table-container {
+            width: 100%;
+            overflow-x: auto; /* 核心：在小螢幕上啟用水平滾動 */
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        /* 美化滾動條 (scrollbar) */
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: var(--header-bg-color);
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--highlight-color);
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 800px; /* 設定最小寬度，確保在小螢幕滾動時不會擠壓 */
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            text-align: center;
+            white-space: nowrap; /* 防止文字換行 */
+        }
+
+        thead th {
+            background-color: var(--header-bg-color);
+            color: var(--text-secondary-color);
+            font-weight: 500;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* 斑馬條紋 */
+        tbody tr:nth-child(even) {
+            background-color: var(--row-alt-color);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            -moz-appearance: textfield;
+        }
+        
+        td input[type="number"]::-webkit-outer-spin-button,
+        td input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        td input[type="number"]:focus {
+            outline: none;
+            border-color: var(--highlight-color);
+            box-shadow: 0 0 5px rgba(0, 170, 255, 0.5);
+        }
+
+        .result-col {
+            background-color: var(--result-col-bg);
+            font-weight: 700;
+            color: var(--highlight-color);
+        }
+
+        .averages-container {
+            background-color: var(--table-bg-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .averages-container h2 {
+            margin: 0;
+            font-weight: 500;
+            color: var(--text-secondary-color);
+            text-align: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .avg-value {
+            font-size: 1.8rem;
+            font-weight: 500;
+        }
+
+        .avg-value span {
+            font-size: 1rem;
+            color: var(--text-secondary-color);
+            margin-right: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>色差數據對比與計算</h1>
+        </header>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="min-width: 80px;">數據組</th>
+                        <th colspan="3">宏盛色差機</th>
+                        <th colspan="3">宏恩色差機</th>
+                        <th class="result-col" style="min-width: 120px;">計算結果 L, A, B</th>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th>L值</th>
+                        <th>A值</th>
+                        <th>B值</th>
+                        <th>ΔL值</th>
+                        <th>ΔA值</th>
+                        <th>ΔB值</th>
+                        <th class="result-col">(L-ΔL), (A-ΔA), (B-ΔB)</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="averages-container">
+            <h2>平均計算結果</h2>
+            <div class="avg-value" id="avg-l"><span>L</span>0.00</div>
+            <div class="avg-value" id="avg-a"><span>A</span>0.00</div>
+            <div class="avg-value" id="avg-b"><span>B</span>0.00</div>
+        </div>
+    </div>
+
+    <script>
+        const tableBody = document.getElementById('data-table-body');
+        const numberOfRows = 4; // 您可以調整需要的資料列數
+        const results = new Array(numberOfRows).fill(null);
+
+        // 動態生成表格行
+        for (let i = 0; i < numberOfRows; i++) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><b>${i + 1}</b></td>
+                <td><input type="number" step="any" oninput="calculateRow(${i})"></td>
+                <td><input type="number" step="any" oninput="calculateRow(${i})"></td>
+                <td><input type="number" step="any" oninput="calculateRow(${i})"></td>
+                <td><input type="number" step="any" oninput="calculateRow(${i})"></td>
+                <td><input type="number" step="any" oninput="calculateRow(${i})"></td>
+                <td><input type="number" step="any" oninput="calculateRow(${i})"></td>
+                <td class="result-col" id="result-${i}">-</td>
+            `;
+            tableBody.appendChild(row);
+        }
+
+        function calculateRow(rowIndex) {
+            const row = tableBody.children[rowIndex];
+            const inputs = row.querySelectorAll('input[type="number"]');
+            
+            const values = Array.from(inputs).map(input => parseFloat(input.value));
+            
+            const hasInput = values.some(v => !isNaN(v));
+
+            if (hasInput) {
+                const [L, A, B, dL, dA, dB] = values.map(v => isNaN(v) ? 0 : v);
+
+                const resultL = L - dL;
+                const resultA = A - dA;
+                const resultB = B - dB;
+                
+                // 格式化輸出
+                const formattedResult = `${resultL.toFixed(2)}, ${resultA.toFixed(2)}, ${resultB.toFixed(2)}`;
+                document.getElementById(`result-${rowIndex}`).textContent = formattedResult;
+                
+                results[rowIndex] = { L: resultL, A: resultA, B: resultB };
+            } else {
+                document.getElementById(`result-${rowIndex}`).textContent = '-';
+                results[rowIndex] = null;
+            }
+            
+            updateAverages();
+        }
+
+        function updateAverages() {
+            const validResults = results.filter(r => r !== null);
+            
+            if (validResults.length === 0) {
+                document.getElementById('avg-l').innerHTML = '<span>L</span>0.00';
+                document.getElementById('avg-a').innerHTML = '<span>A</span>0.00';
+                document.getElementById('avg-b').innerHTML = '<span>B</span>0.00';
+                return;
+            }
+            
+            const totalL = validResults.reduce((sum, r) => sum + r.L, 0);
+            const totalA = validResults.reduce((sum, r) => sum + r.A, 0);
+            const totalB = validResults.reduce((sum, r) => sum + r.B, 0);
+            
+            const count = validResults.length;
+            
+            const avgL = totalL / count;
+            const avgA = totalA / count;
+            const avgB = totalB / count;
+
+            document.getElementById('avg-l').innerHTML = `<span>L</span>${avgL.toFixed(2)}`;
+            document.getElementById('avg-a').innerHTML = `<span>A</span>${avgA.toFixed(2)}`;
+            document.getElementById('avg-b').innerHTML = `<span>B</span>${avgB.toFixed(2)}`;
+        }
+    </script>
+
+</body>
+</html>
