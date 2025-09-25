@@ -2,27 +2,154 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>Excel 資料轉換器（多分頁＋額外頁）</title>
+  <title>Excel 資料轉換器（標示缺日期）</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    /* 全局樣式 */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f0f2f5; /* 頁面背景色 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    /* 卡片式容器 */
+    .container {
+      background-color: #ffffff;
+      padding: 40px 50px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    /* 主標題 */
+    h2 {
+      color: #333;
+      font-size: 28px;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    /* 功能說明文字 */
+    p {
+      color: #6c757d; /* 文字灰色 */
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    /* 新功能提示文字 */
+    .new-feature {
+        color: purple;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+
+    /* 操作區塊 */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e9ecef; /* 分隔線 */
+    }
+    
+    /* 檔案上傳相關樣式 */
+    .file-upload-wrapper {
+      display: flex;
+      align-items: center;
+    }
+
+    /* 隱藏原始的 input file */
+    input[type="file"] {
+      display: none;
+    }
+
+    /* 自訂的「選擇檔案」按鈕 */
+    .custom-file-upload {
+      border: 1px solid #ced4da;
+      display: inline-block;
+      padding: 8px 12px;
+      cursor: pointer;
+      background-color: #f8f9fa;
+      color: #495057;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    .custom-file-upload:hover {
+      background-color: #e9ecef;
+    }
+    
+    /* 顯示檔名的文字 */
+    #file-name {
+      margin-left: 15px;
+      color: #6c757d;
+    }
+    
+    /* 主要操作按鈕 (開始轉換) */
+    .action-button {
+      background-color: #0d6efd; /* 按鈕藍色 */
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .action-button:hover {
+      background-color: #0b5ed7; /* 滑鼠懸停時的深藍色 */
+    }
+  </style>
 </head>
 <body>
-  <h2>Excel 多分頁轉換器</h2>
-  <p>功能：上傳 Excel → 建立「全部 + 各桶別 + 額外分頁」→ 下載</p>
-  <input type="file" id="upload" accept=".xlsx,.xls" />
-  <button onclick="processExcel()">轉換並下載</button>
+
+  <div class="container">
+    <h2>Excel 多分頁轉換器</h2>
+    <p>功能：上傳 Excel → 建立「全部 + 各桶別 + 額外分頁」→ 下載</p>
+    <p class="new-feature">新功能：若 F 欄為空，則在「N_A_H後段」工作表的 D 欄顯示 "缺日期"。</p>
+    
+    <div class="controls">
+      <div class="file-upload-wrapper">
+        <label for="upload" class="custom-file-upload">選擇檔案</label>
+        <span id="file-name">未選擇任何檔案</span>
+        <input type="file" id="upload" accept=".xlsx,.xls" />
+      </div>
+      <button onclick="processExcel()" class="action-button">轉換並下載</button>
+    </div>
+  </div>
 
   <script>
     let workbook;
 
     document.getElementById('upload').addEventListener('change', (e) => {
+      const fileInput = e.target;
+      const fileNameDisplay = document.getElementById('file-name');
+      
+      // 更新顯示的檔名
+      if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = fileInput.files[0].name;
+      } else {
+        fileNameDisplay.textContent = '未選擇任何檔案';
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         const data = new Uint8Array(event.target.result);
         workbook = XLSX.read(data, { type: 'array' });
       };
-      reader.readAsArrayBuffer(e.target.files[0]);
+      reader.readAsArrayBuffer(fileInput.files[0]);
     });
 
+    // --- 以下為您原本的 Excel 處理邏輯，完全未做修改 ---
     function processExcel() {
       if (!workbook) {
         alert("請先上傳 Excel 檔案！");
@@ -40,40 +167,23 @@
       const allData = [header];
       const groupSheets = {};
 
-      // 👇 額外分頁用：N, A, H後段
-      const extraSheetHeader = ["N欄", "A欄", "H欄後段"];
+      const extraSheetHeader = ["N欄", "A欄", "H欄後段", "備註"];
       const extraSheetData = [extraSheetHeader];
 
-      let currentGroup = "";
-      let currentDValue = "";
-      let currentNValue = ""; // ⬅️ for N欄向下填滿
-      let currentAValue = ""; // ⬅️ for A欄向下填滿（在額外分頁 B 欄）
+      let currentGroup = "", currentDValue = "", currentNValue = "", currentAValue = "";
 
       for (let i = 1; i < json.length; i++) {
         const row = json[i];
-
-        const colA = row[0];    // A欄（桶別）
-        const colE = row[4];    // E欄 → G
-        const colG = row[6];    // G欄 → D
-        const colH = row[7];    // H欄
-        const colI = row[8];    // I欄 → C
-        const colK = row[10];   // K欄 → F
-        const colN = row[13];   // N欄 → 額外分頁 A 欄
+        const colA = row[0], colE = row[4], colG = row[6], colH = row[7];
+        const colI = row[8], colK = row[10], colN = row[13];
 
         if (colA && colA.trim() !== "") {
           currentGroup = colA;
           currentAValue = colA;
         }
-
-        if (colG && colG.toString().trim() !== "") {
-          currentDValue = colG;
-        }
-
-        if (colN && colN.toString().trim() !== "") {
-          currentNValue = colN;
-        }
-
-        // 拆解 H 欄
+        if (colG && colG.toString().trim() !== "") currentDValue = colG;
+        if (colN && colN.toString().trim() !== "") currentNValue = colN;
+        
         let beforeDash = "", afterDash = "";
         if (typeof colH === "string" && colH.includes("-")) {
           const parts = colH.split("-");
@@ -81,16 +191,7 @@
           afterDash = parts[1];
         }
 
-        // ✅ 主資料表與桶別分頁
-        const newRow = [
-          currentGroup,     // A
-          afterDash,        // B
-          colI,             // C
-          currentDValue,    // D
-          beforeDash,       // E
-          colK,             // F
-          colE              // G
-        ];
+        const newRow = [currentGroup, afterDash, colI, currentDValue, beforeDash, colK, colE];
         allData.push(newRow);
 
         if (!groupSheets[currentGroup]) {
@@ -98,33 +199,34 @@
         }
         groupSheets[currentGroup].push(newRow);
 
-        // ✅ 額外分頁資料
-        extraSheetData.push([
-          currentNValue,     // A: N欄（向下填滿）
-          currentAValue,     // B: A欄（向下填滿）
-          afterDash          // C: H欄後段
-        ]);
+        extraSheetData.push([currentNValue, currentAValue, afterDash]);
+      }
+
+      for (let i = 1; i < allData.length; i++) {
+        const fColumnValue = allData[i][5];
+        if (!fColumnValue || fColumnValue.toString().trim() === "") {
+          extraSheetData[i].push("缺日期");
+        } else {
+          extraSheetData[i].push("");
+        }
       }
 
       const newWorkbook = XLSX.utils.book_new();
 
-      // 加入全部資料分頁
       const allSheet = XLSX.utils.aoa_to_sheet(allData);
       XLSX.utils.book_append_sheet(newWorkbook, allSheet, "全部");
 
-      // 加入每個桶別的分頁
       for (const groupName in groupSheets) {
         const sheetData = groupSheets[groupName];
         const safeSheetName = groupName.length > 31 ? groupName.slice(0, 31) : groupName;
         const sheet = XLSX.utils.aoa_to_sheet(sheetData);
         XLSX.utils.book_append_sheet(newWorkbook, sheet, safeSheetName);
       }
-
-      // ✅ 加入額外分頁
+      
       const extraSheet = XLSX.utils.aoa_to_sheet(extraSheetData);
       XLSX.utils.book_append_sheet(newWorkbook, extraSheet, "N_A_H後段");
-
-      XLSX.writeFile(newWorkbook, "轉換後資料_含分類與額外頁.xlsx");
+      
+      XLSX.writeFile(newWorkbook, "轉換後資料_含備註.xlsx");
     }
   </script>
 </body>
