@@ -1,219 +1,214 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>品管資料查詢系統</title>
-    
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-    <style>
-        body { font-family: sans-serif; margin: 2em; background-color: #f4f4f9; }
-        .container { max-width: 95%; margin: auto; }
-        .controls { background-color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-        .controls > * { display: inline-block; }
-        select, button { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
-        button { background-color: #007bff; color: white; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        #loading { font-weight: bold; color: #007bff; }
-        .dataTables_wrapper { width: 100%; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Excel QC Comparator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* 【說明】您的 CSS 樣式完全保留，不做任何修改 */
+    :root {
+      --bg-color: #1d1e22;
+      --surface-color: #2c2d32;
+      --primary-color: #4a8eff;
+      --primary-hover: #6ea3ff;
+      --text-color: #e0e0e0;
+      --border-color: #444;
+      --low-bg: rgba(255, 107, 107, 0.2);
+      --low-text: #ff8c8c;
+      --high-bg: rgba(29, 201, 141, 0.2);
+      --high-text: #59f9c7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); padding: 2em; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .container { width: 100%; max-width: 95vw; }
+    .controls-panel { background: var(--surface-color); padding: 2em; border-radius: 12px; margin-bottom: 2em; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); text-align: center; }
+    h2 { font-size: 2.5em; font-weight: 600; color: #fff; margin-bottom: 1em; text-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
+    .control-group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5em; }
+    select, button, label { font-size: 1em; font-family: 'Poppins', sans-serif; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); padding: 0.8em 1.2em; transition: all 0.3s ease; }
+    select:focus, input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
+    button { background: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: 500; }
+    button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4); }
+    #output { background: var(--surface-color); padding: 2em; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
+    table { border-collapse: collapse; width: 100%; font-size: 0.85em; table-layout: fixed; word-break: break-all; }
+    th { background: var(--primary-color); color: white; padding: 0.8em 0.5em; font-weight: 600; }
+    th:first-child { border-top-left-radius: 8px; }
+    th:last-child { border-top-right-radius: 8px; }
+    td { border-bottom: 1px solid var(--border-color); padding: 0.7em 0.5em; text-align: center; transition: background-color 0.3s ease; }
+    tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+    tbody tr:last-child td { border-bottom: none; }
+    .low { background-color: var(--low-bg); color: var(--low-text); font-weight: 600; }
+    .high { background-color: var(--high-bg); color: var(--high-text); font-weight: 600; }
+    /* 【新增】讀取狀態的樣式 */
+    #loadingStatus { font-weight: 500; color: var(--primary-hover); }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>品管資料查詢系統</h1>
-        
-        <div class="controls">
-            <div>
-                <label for="sheetSelect">選擇分頁: </label>
-                <select id="sheetSelect"></select>
-            </div>
-            <div>
-                <label for="monthSelect">選擇月份: </label>
-                <select id="monthSelect"><option value="">全部</option></select>
-            </div>
-            <div>
-                <label for="dateSelect">選擇日期: </label>
-                <select id="dateSelect"><option value="">全部</option></select>
-            </div>
-            <div>
-                <button onclick="filterByDateRange(3)">近三天</button>
-                <button onclick="filterByDateRange(7)">近七天</button>
-            </div>
-            <div id="loading">正在載入 Excel 資料...</div>
+  
+  <div class="container">
+    <div class="controls-panel">
+        <h2>Excel QC Comparator ✨</h2>
+        <div class="control-group">
+            <label>
+              選擇分頁：
+              <select id="sheetSelect"><option>讀取中...</option></select>
+            </label>
+            
+            <label>
+              選擇製造日期（可選）：
+              <select id="dateSelect"><option value="">全部</option></select>
+            </label>
+            
+            <button onclick="compareData()">🚀 執行比對</button>
+            
+            <div id="loadingStatus"></div>
         </div>
-        
-        <div id="tableContainer"></div>
     </div>
-
-<script>
-let workbook;
-let sheetData = {}; // 用來快取已解析的分頁資料
-let headers = [];
-
-// 【核心】從 GitHub Pages 的相對路徑載入 Excel 檔案
-const EXCEL_URL = 'data/成品品質檢驗表2025.xlsx';
-
-$(document).ready(function() {
-    fetch(EXCEL_URL)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error("找不到 Excel 檔案，請確認 'data/your_data.xlsx' 已上傳。");
-            }
-            return res.arrayBuffer();
-        })
-        .then(data => {
-            const dataArray = new Uint8Array(data);
-            workbook = XLSX.read(dataArray, { type: 'array' });
-            
-            const sheetSelect = $('#sheetSelect');
-            sheetSelect.empty();
-            workbook.SheetNames.forEach(name => {
-                sheetSelect.append($('<option>', { value: name, text: name }));
-            });
-            
-            $('#loading').text('資料載入完成！');
-            // 預設載入第一個分頁的資料
-            loadSheetData(workbook.SheetNames[0]);
-        })
-        .catch(err => {
-            $('#loading').text(err.message).css('color', 'red');
-        });
-
-    // 監聽下拉選單變化
-    $('#sheetSelect').on('change', function() {
-        loadSheetData(this.value);
-    });
-    $('#monthSelect, #dateSelect').on('change', function() {
-        renderTable(filterData());
-    });
-});
-
-function loadSheetData(sheetName) {
-    if (!workbook) return;
-
-    if (!sheetData[sheetName]) {
-        const sheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        headers = jsonData.length > 0 ? jsonData[0] : [];
-        sheetData[sheetName] = jsonData.slice(1).map(row => {
-            let rowObj = {};
-            headers.forEach((h, i) => rowObj[h] = row[i]);
-            return rowObj;
-        });
-    }
-
-    populateDateFilters(sheetData[sheetName]);
-    renderTable(sheetData[sheetName]); // 初始顯示所有資料
-}
-
-function populateDateFilters(data) {
-    const monthSelect = $('#monthSelect').empty().append('<option value="">全部</option>');
-    const dateSelect = $('#dateSelect').empty().append('<option value="">全部</option>');
     
-    // **重要**：假設第三欄是日期欄，請根據您的 Excel 調整
-    const dateColumnName = headers[2]; 
-    if (!dateColumnName) return;
+    <div id="output"></div>
+  </div>
 
-    const months = new Set();
-    const dates = new Set();
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    // 【說明】這裡保留了您所有的核心比對邏輯變數
+    let workbook, refSheetMap = new Map();
 
-    data.forEach(row => {
-        const dateStr = row[dateColumnName];
-        if (dateStr) {
-            const dateObj = dayjs(dateStr);
-            if (dateObj.isValid()) {
-                months.add(dateObj.format('YYYY-MM'));
-                dates.add(dateObj.format('YYYY-MM-DD'));
-            }
-        }
-    });
-
-    [...months].sort().reverse().forEach(m => monthSelect.append($('<option>', { value: m, text: m })));
-    [...dates].sort().reverse().forEach(d => dateSelect.append($('<option>', { value: d, text: d })));
-}
-
-function filterData() {
-    const sheetName = $('#sheetSelect').val();
-    let data = sheetData[sheetName] || [];
-
-    const monthFilter = $('#monthSelect').val();
-    const dateFilter = $('#dateSelect').val();
-    const dateColumnName = headers[2]; // 同上，假設第三欄是日期
-
-    if (!dateColumnName) return data;
-
-    return data.filter(row => {
-        const dateStr = row[dateColumnName];
-        if (!dateStr) return false;
+    // 【修改】這裡是主要變動：將手動選擇檔案，改為在網頁載入時自動從伺服器讀取
+    window.onload = function() {
+        // 【重要】請確保這個路徑和檔名與您上傳到 GitHub 的 Excel 檔案一致
+        const excelFilePath = 'data/成品品質檢驗表2025.xlsx'; 
+        const loadingStatus = document.getElementById('loadingStatus');
         
-        const dateObj = dayjs(dateStr);
-        if (!dateObj.isValid()) return false;
+        loadingStatus.textContent = '正在從伺服器讀取 Excel 檔案...';
 
-        if (dateFilter) {
-            return dateObj.format('YYYY-MM-DD') === dateFilter;
-        }
-        if (monthFilter) {
-            return dateObj.format('YYYY-MM') === monthFilter;
-        }
-        return true;
+        // 使用 fetch API 獲取遠端的 Excel 檔案
+        fetch(excelFilePath)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('無法載入 Excel 檔案，請檢查檔案路徑是否正確。');
+                }
+                return response.arrayBuffer(); // 將回應轉換成 ArrayBuffer
+            })
+            .then(data => {
+                const dataArray = new Uint8Array(data);
+                workbook = XLSX.read(dataArray, { type: 'array' });
+                
+                // 【說明】以下這段處理總表、建立 refSheetMap 的邏輯完全來自您的原始碼，保持不變
+                const refSheet = XLSX.utils.sheet_to_json(workbook.Sheets['總表'], { header: 1 });
+                refSheetMap.clear();
+                for (let i = 1; i < refSheet.length; i++) {
+                    const row = refSheet[i];
+                    if (!row[1]) continue;
+                    refSheetMap.set(String(row[1]), row);
+                }
+
+                // 【說明】這段填充分頁下拉選單的邏輯也完全來自您的原始碼
+                const sheetSelect = document.getElementById('sheetSelect');
+                sheetSelect.innerHTML = '<option value="">請選擇</option>';
+                workbook.SheetNames.forEach(name => {
+                    if (name !== '總表') {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        sheetSelect.appendChild(opt);
+                    }
+                });
+
+                document.getElementById('dateSelect').innerHTML = '<option value="">全部</option>';
+                document.getElementById('output').innerHTML = '';
+                loadingStatus.textContent = 'Excel 檔案讀取成功！';
+            })
+            .catch(error => {
+                console.error(error);
+                loadingStatus.textContent = `錯誤：${error.message}`;
+                loadingStatus.style.color = 'var(--low-text)';
+            });
+    };
+
+    // 【說明】這個監聽分頁選擇、並填入日期的功能，完全來自您的原始碼，保持不變
+    document.getElementById('sheetSelect').addEventListener('change', () => {
+      const sheetName = document.getElementById('sheetSelect').value;
+      if (!sheetName || !workbook) return;
+      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+      const dateSet = new Set();
+      for (let i = 1; i < sheet.length; i++) {
+        const d = sheet[i][2];
+        if (d) dateSet.add(d);
+      }
+      const dateSelect = document.getElementById('dateSelect');
+      dateSelect.innerHTML = '<option value="">全部</option>';
+      [...dateSet].forEach(date => {
+        const opt = document.createElement('option');
+        opt.value = date;
+        opt.textContent = date;
+        dateSelect.appendChild(opt);
+      });
+      // 自動觸發一次比對，顯示該分頁全部資料
+      compareData(); 
     });
-}
 
-function filterByDateRange(days) {
-    // 清空日月篩選器，避免衝突
-    $('#monthSelect').val('');
-    $('#dateSelect').val('');
-
-    const sheetName = $('#sheetSelect').val();
-    let data = sheetData[sheetName] || [];
-    const dateColumnName = headers[2]; // 同上，假設第三欄是日期
-    
-    if (!dateColumnName) {
-        renderTable(data);
+    // 【說明】您的核心比對函式 compareData()，完全來自您的原始碼，保持不變
+    function compareData() {
+      const sheetName = document.getElementById('sheetSelect').value;
+      const dateFilter = document.getElementById('dateSelect').value;
+      if (!sheetName || !workbook) {
+        document.getElementById('output').innerHTML = '請先選擇一個分頁。';
         return;
-    }
-    
-    const today = dayjs();
-    const startDate = today.subtract(days - 1, 'day');
+      }
+      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+      const body = [];
 
-    const filtered = data.filter(row => {
-        const dateStr = row[dateColumnName];
-        if (!dateStr) return false;
-        const dateObj = dayjs(dateStr);
-        return dateObj.isValid() && dateObj.isAfter(startDate.startOf('day')) && dateObj.isBefore(today.endOf('day'));
-    });
+      for (let i = 1; i < sheet.length; i++) {
+        const row = sheet[i];
+        if (!row.length || (dateFilter && row[2] !== dateFilter)) continue;
+        const item = [...row];
+        const code = (item[0] || '').replace(/-M$/, '');
+        const refRow = refSheetMap.get(code);
+        const colorMark = Array(21).fill('');
 
-    renderTable(filtered);
-}
-
-function renderTable(data) {
-    const tableContainer = $('#tableContainer');
-    tableContainer.empty();
-
-    if (data.length === 0) {
-        tableContainer.text('沒有符合條件的資料。');
-        return;
-    }
-
-    const table = $('<table>').attr('id', 'dataTable').addClass('display').css('width', '100%');
-    tableContainer.append(table);
-
-    $('#dataTable').DataTable({
-        data: data,
-        columns: headers.map(h => ({ title: h, data: h })),
-        destroy: true, // 銷毀已存在的表格，以便重建
-        scrollX: true, // 啟用水平捲動
-        language: {
-            url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/zh-HANT.json"
+        if (refRow) {
+          [[5, 4, 5], [8, 6, 7], [10, 9,10], [11,11,12]].forEach(([col, low, high]) => {
+            const val = parseFloat(item[col]);
+            const min = parseFloat(refRow[low]);
+            const max = parseFloat(refRow[high]);
+            if (!isNaN(val)) {
+              if (!isNaN(min) && val < min) colorMark[col] = 'low';
+              else if (!isNaN(max) && val > max) colorMark[col] = 'high';
+            }
+          });
         }
-    });
-}
-</script>
+        body.push({ row: item, mark: colorMark });
+      }
 
+      const output = document.getElementById('output');
+      output.innerHTML = '';
+      const table = document.createElement('table');
+      const header = document.createElement('tr');
+      const headers = [
+        '產品編號','桶別','製造日期','機台','班別',
+        'MI(2.16kg)', 'MI(5kg)', 'MI(21.6kg)','耐衝擊 kg-cm','耐衝擊 kg-cm/cm^2','硬度','密度','縮水',
+        '白點','顆粒','色澤','L值','A值','B值','等級區分','備註'
+      ];
+      headers.forEach(title => {
+        const th = document.createElement('th');
+        th.textContent = title;
+        header.appendChild(th);
+      });
+      table.appendChild(header);
+
+      body.forEach(({ row, mark }) => {
+        const tr = document.createElement('tr');
+        for (let i = 0; i < 21; i++) {
+          const td = document.createElement('td');
+          td.textContent = row[i] ?? '';
+          if (mark[i]) td.classList.add(mark[i]);
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      });
+      output.appendChild(table);
+    }
+  </script>
 </body>
 </html>
