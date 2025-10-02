@@ -1,0 +1,4 @@
+*.log
+*.gsl
+*._gs
+/data/_gsdata_/_saved_
