@@ -7,8 +7,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   
-  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
-
   <style>
     :root {
       --bg-color: #1d1e22;
@@ -63,10 +61,6 @@
             
             <button onclick="compareData()">🚀 執行比對</button>
             
-            <button onclick="filterByDateRange(1)">今天</button>
-            <button onclick="filterByDateRange(3)">近三天</button>
-            <button onclick="filterByDateRange(7)">近七天</button>
-
             <div id="loadingStatus"></div>
         </div>
     </div>
@@ -154,6 +148,10 @@
       processAndRender(currentSheetData, headers);
     });
     
+    document.getElementById('dateSelect').addEventListener('change', () => {
+        compareData();
+    });
+
     function compareData() {
       const sheetName = document.getElementById('sheetSelect').value;
       const dateFilter = document.getElementById('dateSelect').value;
@@ -171,53 +169,6 @@
       processAndRender(filteredData, headers);
     }
     
-    function filterByDateRange(days) {
-        const sheetName = document.getElementById('sheetSelect').value;
-        if (!sheetName || !sheetDataCache[sheetName]) return;
-
-        document.getElementById('dateSelect').value = '';
-
-        const currentSheetData = sheetDataCache[sheetName];
-        const headers = headersCache[sheetName];
-        const dateColumnIndex = 2; 
-
-        const today = dayjs();
-        const startDate = today.subtract(days - 1, 'day');
-
-        const filteredData = currentSheetData.filter(row => {
-            if (!row.length) return false;
-            
-            const rowDate = parseDate(row[dateColumnIndex]);
-            if (!rowDate) return false;
-
-            return rowDate.isSameOrAfter(startDate, 'day') && rowDate.isSameOrBefore(today, 'day');
-        });
-        
-        processAndRender(filteredData, headers);
-    }
-
-    function parseDate(dateValue) {
-        if (!dateValue) return null;
-        
-        if (typeof dateValue === 'number') {
-            const jsDate = new Date((dateValue - 25569) * 86400 * 1000);
-            return dayjs(jsDate);
-        }
-        
-        if (typeof dateValue === 'string') {
-            const rocMatch = dateValue.match(/^(\d{2,3})\/(\d{1,2})\/(\d{1,2})$/);
-            if (rocMatch) {
-                const year = parseInt(rocMatch[1], 10) + 1911;
-                const month = parseInt(rocMatch[2], 10) - 1;
-                const day = parseInt(rocMatch[3], 10);
-                return dayjs(new Date(year, month, day));
-            }
-        }
-        
-        const parsedDate = dayjs(dateValue);
-        return parsedDate.isValid() ? parsedDate : null;
-    }
-
     function processAndRender(dataRows, headers) {
         const body = [];
         for (let i = 0; i < dataRows.length; i++) {
