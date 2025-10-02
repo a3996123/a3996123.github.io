@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
 
   <style>
-    /* 您的 CSS 樣式完全保留 */
     :root {
       --bg-color: #1d1e22;
       --surface-color: #2c2d32;
@@ -32,7 +31,7 @@
     select, button, label { font-size: 1em; font-family: 'Poppins', sans-serif; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); padding: 0.8em 1.2em; transition: all 0.3s ease; }
     select:focus, input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
     button { background: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: 500; }
-    button:hover { background: var(--primary-hover); transform: translateY(-px); box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4); }
+    button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4); }
     #output { background: var(--surface-color); padding: 2em; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
     table { border-collapse: collapse; width: 100%; font-size: 0.85em; table-layout: fixed; word-break: break-all; }
     th { background: var(--primary-color); color: white; padding: 0.8em 0.5em; font-weight: 600; }
@@ -78,11 +77,11 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     let workbook, refSheetMap = new Map();
-    let sheetDataCache = {}; // 用來快取已解析的分頁資料
-    let headersCache = {};   // 用來快取分頁的標頭
+    let sheetDataCache = {};
+    let headersCache = {};
 
     window.onload = function() {
-        const excelFilePath = 'data/成品品質檢驗表2025.xlsx'; 
+        const excelFilePath = 'data/品管總表.xlsx'; 
         const loadingStatus = document.getElementById('loadingStatus');
         
         loadingStatus.textContent = '正在讀取 Excel 檔案...';
@@ -128,7 +127,6 @@
       const sheetName = document.getElementById('sheetSelect').value;
       if (!sheetName || !workbook) return;
 
-      // 使用快取避免重複解析
       if (!sheetDataCache[sheetName]) {
           const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
           headersCache[sheetName] = sheet.length > 0 ? sheet[0] : [];
@@ -137,7 +135,6 @@
       
       const currentSheetData = sheetDataCache[sheetName];
       const headers = headersCache[sheetName];
-      // 【重要】確認日期所在的欄位索引 (C欄 = 2)
       const dateColumnIndex = 2; 
 
       const dateSet = new Set();
@@ -154,118 +151,111 @@
         opt.textContent = date;
         dateSelect.appendChild(opt);
       });
-      compareData(); 
+      processAndRender(currentSheetData, headers);
     });
-
+    
     function compareData() {
       const sheetName = document.getElementById('sheetSelect').value;
       const dateFilter = document.getElementById('dateSelect').value;
-      if (!sheetName || !workbook) {
-        document.getElementById('output').innerHTML = '請先選擇一個分頁。';
-        return;
-      }
-      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-      const body = [];
+      if (!sheetName || !sheetDataCache[sheetName]) return;
 
-      for (let i = 1; i < sheet.length; i++) {
-        const row = sheet[i];
-        if (!row.length || (dateFilter && row[2] !== dateFilter)) continue;
-        const item = [...row];
-        const code = (item[0] || '').replace(/-M$/, '');
-        const refRow = refSheetMap.get(code);
-        const colorMark = Array(21).fill('');
+      const currentSheetData = sheetDataCache[sheetName];
+      const headers = headersCache[sheetName];
+      const dateColumnIndex = 2;
+      
+      const filteredData = currentSheetData.filter(row => {
+          if (!row.length) return false;
+          return !dateFilter || row[dateColumnIndex] == dateFilter;
+      });
 
-        if (refRow) {
-          [[5, 4, 5], [8, 6, 7], [10, 9,10], [11,11,12]].forEach(([col, low, high]) => {
-            const val = parseFloat(item[col]);
-            const min = parseFloat(refRow[low]);
-            const max = parseFloat(refRow[high]);
-            if (!isNaN(val)) {
-              if (!isNaN(min) && val < min) colorMark[col] = 'low';
-              else if (!isNaN(max) && val > max) colorMark[col] = 'high';
-            }
-          });
-        }
-        body.push({ row: item, mark: colorMark });
-      }
-
-      renderTable(sheet.slice(0, 1)[0], body);
+      processAndRender(filteredData, headers);
     }
     
-    // 【新增】處理日期範圍篩選的函式
     function filterByDateRange(days) {
         const sheetName = document.getElementById('sheetSelect').value;
-        if (!sheetName || !sheetDataCache[sheetName]) {
-            document.getElementById('output').innerHTML = '請先選擇一個分頁。';
-            return;
-        }
+        if (!sheetName || !sheetDataCache[sheetName]) return;
 
-        // 當使用快速篩選時，清空手動日期選擇，避免衝突
         document.getElementById('dateSelect').value = '';
 
         const currentSheetData = sheetDataCache[sheetName];
         const headers = headersCache[sheetName];
-        // 【重要】確認日期所在的欄位索引 (C欄 = 2)
         const dateColumnIndex = 2; 
 
         const today = dayjs();
-        const startDate = today.subtract(days - 1, 'day').startOf('day');
+        const startDate = today.subtract(days - 1, 'day');
 
-        const body = [];
-        for (let i = 0; i < currentSheetData.length; i++) {
-            const row = currentSheetData[i];
-            if (!row.length) continue;
-
-            let rowDate;
-            const dateValue = row[dateColumnIndex];
-
-            // 處理 Excel 日期數字或文字格式
-            if (typeof dateValue === 'number') {
-                const jsDate = new Date((dateValue - 25569) * 86400 * 1000);
-                rowDate = dayjs(jsDate);
-            } else {
-                rowDate = dayjs(dateValue);
-            }
+        const filteredData = currentSheetData.filter(row => {
+            if (!row.length) return false;
             
-            // 進行日期比較
-            if (rowDate.isValid() && rowDate.isAfter(startDate) && rowDate.isBefore(today.endOf('day'))) {
-                // 這段比對邏輯與 compareData() 函式中的完全相同
-                const item = [...row];
-                const code = (item[0] || '').replace(/-M$/, '');
-                const refRow = refSheetMap.get(code);
-                const colorMark = Array(21).fill('');
+            const rowDate = parseDate(row[dateColumnIndex]);
+            if (!rowDate) return false;
 
-                if (refRow) {
-                    [[5, 4, 5], [8, 6, 7], [10, 9,10], [11,11,12]].forEach(([col, low, high]) => {
-                        const val = parseFloat(item[col]);
-                        const min = parseFloat(refRow[low]);
-                        const max = parseFloat(refRow[high]);
-                        if (!isNaN(val)) {
-                            if (!isNaN(min) && val < min) colorMark[col] = 'low';
-                            else if (!isNaN(max) && val > max) colorMark[col] = 'high';
-                        }
-                    });
-                }
-                body.push({ row: item, mark: colorMark });
+            return rowDate.isSameOrAfter(startDate, 'day') && rowDate.isSameOrBefore(today, 'day');
+        });
+        
+        processAndRender(filteredData, headers);
+    }
+
+    function parseDate(dateValue) {
+        if (!dateValue) return null;
+        
+        if (typeof dateValue === 'number') {
+            const jsDate = new Date((dateValue - 25569) * 86400 * 1000);
+            return dayjs(jsDate);
+        }
+        
+        if (typeof dateValue === 'string') {
+            const rocMatch = dateValue.match(/^(\d{2,3})\/(\d{1,2})\/(\d{1,2})$/);
+            if (rocMatch) {
+                const year = parseInt(rocMatch[1], 10) + 1911;
+                const month = parseInt(rocMatch[2], 10) - 1;
+                const day = parseInt(rocMatch[3], 10);
+                return dayjs(new Date(year, month, day));
             }
+        }
+        
+        const parsedDate = dayjs(dateValue);
+        return parsedDate.isValid() ? parsedDate : null;
+    }
+
+    function processAndRender(dataRows, headers) {
+        const body = [];
+        for (let i = 0; i < dataRows.length; i++) {
+            const row = dataRows[i];
+            const item = [...row];
+            const code = (item[0] || '').replace(/-M$/, '');
+            const refRow = refSheetMap.get(code);
+            const colorMark = Array(21).fill('');
+
+            if (refRow) {
+                [[5, 4, 5], [8, 6, 7], [10, 9, 10], [11, 11, 12]].forEach(([col, low, high]) => {
+                    const val = parseFloat(item[col]);
+                    const min = parseFloat(refRow[low]);
+                    const max = parseFloat(refRow[high]);
+                    if (!isNaN(val)) {
+                        if (!isNaN(min) && val < min) colorMark[col] = 'low';
+                        else if (!isNaN(max) && val > max) colorMark[col] = 'high';
+                    }
+                });
+            }
+            body.push({ row: item, mark: colorMark });
         }
         renderTable(headers, body);
     }
 
-    // 【修改】將 renderTable 函式獨立出來，方便重複使用
     function renderTable(headers, body) {
         const output = document.getElementById('output');
         output.innerHTML = '';
 
+        if (!headers || headers.length === 0) return;
+
         if (body.length === 0) {
-            output.innerHTML = '<p>在指定日期範圍內沒有找到資料。</p>';
+            output.innerHTML = '<p style="text-align:center; padding: 2em;">在指定條件下沒有找到資料。</p>';
             return;
         }
 
         const table = document.createElement('table');
         const header = document.createElement('tr');
-
-        // 使用傳入的 headers 參數建立表頭
         headers.forEach(title => {
             const th = document.createElement('th');
             th.textContent = title;
@@ -285,7 +275,6 @@
         });
         output.appendChild(table);
     }
-
   </script>
 </body>
 </html>
