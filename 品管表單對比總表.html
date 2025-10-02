@@ -1,232 +1,232 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>Excel QC Comparator</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --bg-color: #1d1e22;
-      --surface-color: #2c2d32;
-      --primary-color: #4a8eff;
-      --primary-hover: #6ea3ff;
-      --text-color: #e0e0e0;
-      --border-color: #444;
-      --low-bg: rgba(255, 107, 107, 0.2);
-      --low-text: #ff8c8c;
-      --high-bg: rgba(29, 201, 141, 0.2);
-      --high-text: #59f9c7;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); padding: 2em; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
-    .container { width: 100%; max-width: 95vw; }
-    .controls-panel { background: var(--surface-color); padding: 2em; border-radius: 12px; margin-bottom: 2em; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); text-align: center; }
-    h2 { font-size: 2.5em; font-weight: 600; color: #fff; margin-bottom: 1em; text-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
-    .control-group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5em; }
-    select, button, label { font-size: 1em; font-family: 'Poppins', sans-serif; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); padding: 0.8em 1.2em; transition: all 0.3s ease; }
-    select:focus, input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
-    button { background: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: 500; }
-    button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4); }
-    #output { background: var(--surface-color); padding: 2em; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
-    table { border-collapse: collapse; width: 100%; font-size: 0.85em; table-layout: fixed; word-break: break-all; }
-    th { background: var(--primary-color); color: white; padding: 0.8em 0.5em; font-weight: 600; }
-    th:first-child { border-top-left-radius: 8px; }
-    th:last-child { border-top-right-radius: 8px; }
-    td { border-bottom: 1px solid var(--border-color); padding: 0.7em 0.5em; text-align: center; transition: background-color 0.3s ease; }
-    tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
-    tbody tr:last-child td { border-bottom: none; }
-    .low { background-color: var(--low-bg); color: var(--low-text); font-weight: 600; }
-    .high { background-color: var(--high-bg); color: var(--high-text); font-weight: 600; }
-    #loadingStatus { font-weight: 500; color: var(--primary-hover); }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Excel QC Comparator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #1d1e22;
+      --surface-color: #2c2d32;
+      --primary-color: #4a8eff;
+      --primary-hover: #6ea3ff;
+      --text-color: #e0e0e0;
+      --border-color: #444;
+      --low-bg: rgba(255, 107, 107, 0.2);
+      --low-text: #ff8c8c;
+      --high-bg: rgba(29, 201, 141, 0.2);
+      --high-text: #59f9c7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); padding: 2em; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .container { width: 100%; max-width: 95vw; }
+    .controls-panel { background: var(--surface-color); padding: 2em; border-radius: 12px; margin-bottom: 2em; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); text-align: center; }
+    h2 { font-size: 2.5em; font-weight: 600; color: #fff; margin-bottom: 1em; text-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
+    .control-group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5em; }
+    select, button, label { font-size: 1em; font-family: 'Poppins', sans-serif; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); padding: 0.8em 1.2em; transition: all 0.3s ease; }
+    select:focus, input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
+    button { background: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: 500; }
+    button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4); }
+    #output { background: var(--surface-color); padding: 2em; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
+    table { border-collapse: collapse; width: 100%; font-size: 0.85em; table-layout: fixed; word-break: break-all; }
+    th { background: var(--primary-color); color: white; padding: 0.8em 0.5em; font-weight: 600; }
+    th:first-child { border-top-left-radius: 8px; }
+    th:last-child { border-top-right-radius: 8px; }
+    td { border-bottom: 1px solid var(--border-color); padding: 0.7em 0.5em; text-align: center; transition: background-color 0.3s ease; }
+    tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+    tbody tr:last-child td { border-bottom: none; }
+    .low { background-color: var(--low-bg); color: var(--low-text); font-weight: 600; }
+    .high { background-color: var(--high-bg); color: var(--high-text); font-weight: 600; }
+    #loadingStatus { font-weight: 500; color: var(--primary-hover); }
+  </style>
 </head>
 <body>
-  
-  <div class="container">
-    <div class="controls-panel">
-        <h2>Excel QC Comparator ✨</h2>
-        <div class="control-group">
-            <label>
-              選擇分頁：
-              <select id="sheetSelect"><option>讀取中...</option></select>
-            </label>
-            
-            <label>
-              選擇製造日期：
-              <select id="dateSelect"><option value="">全部</option></select>
-            </label>
-            
-            <button onclick="compareData()">🚀 執行比對</button>
-            
-            <div id="loadingStatus"></div>
-        </div>
-    </div>
-    
-    <div id="output"></div>
-  </div>
+  
+  <div class="container">
+    <div class="controls-panel">
+        <h2>Excel QC Comparator ✨</h2>
+        <div class="control-group">
+            <label>
+              選擇分頁：
+              <select id="sheetSelect"><option>讀取中...</option></select>
+            </label>
+            
+            <label>
+              選擇製造日期：
+              <select id="dateSelect"><option value="">全部</option></select>
+            </label>
+            
+            <button onclick="compareData()">🚀 執行比對</button>
+            
+            <div id="loadingStatus"></div>
+        </div>
+    </div>
+    
+    <div id="output"></div>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script>
-    let workbook, refSheetMap = new Map();
-    let sheetDataCache = {};
-    let headersCache = {};
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    let workbook, refSheetMap = new Map();
+    let sheetDataCache = {};
+    let headersCache = {};
 
-    window.onload = function() {
-        const excelFilePath = 'data/成品品質檢驗表2025.xlsx'; 
-        const loadingStatus = document.getElementById('loadingStatus');
-        
-        loadingStatus.textContent = '正在讀取 Excel 檔案...';
+    window.onload = function() {
+        const excelFilePath = 'data/成品品質檢驗表2025.xlsx'; 
+        const loadingStatus = document.getElementById('loadingStatus');
+        
+        loadingStatus.textContent = '正在讀取 Excel 檔案...';
 
-        fetch(excelFilePath)
-            .then(response => {
-                if (!response.ok) throw new Error('無法載入 Excel 檔案');
-                return response.arrayBuffer();
-            })
-            .then(data => {
-                const dataArray = new Uint8Array(data);
-                workbook = XLSX.read(dataArray, { type: 'array' });
-                
-                const refSheet = XLSX.utils.sheet_to_json(workbook.Sheets['總表'], { header: 1 });
-                refSheetMap.clear();
-                for (let i = 1; i < refSheet.length; i++) {
-                    const row = refSheet[i];
-                    if (!row[1]) continue;
-                    refSheetMap.set(String(row[1]), row);
-                }
+        fetch(excelFilePath)
+            .then(response => {
+                if (!response.ok) throw new Error('無法載入 Excel 檔案');
+                return response.arrayBuffer();
+            })
+            .then(data => {
+                const dataArray = new Uint8Array(data);
+                workbook = XLSX.read(dataArray, { type: 'array' });
+                
+                const refSheet = XLSX.utils.sheet_to_json(workbook.Sheets['總表'], { header: 1 });
+                refSheetMap.clear();
+                for (let i = 1; i < refSheet.length; i++) {
+                    const row = refSheet[i];
+                    if (!row[1]) continue;
+                    refSheetMap.set(String(row[1]), row);
+                }
 
-                const sheetSelect = document.getElementById('sheetSelect');
-                sheetSelect.innerHTML = '<option value="">請選擇</option>';
-                workbook.SheetNames.forEach(name => {
-                    if (name !== '總表') {
-                        const opt = document.createElement('option');
-                        opt.value = name;
-                        opt.textContent = name;
-                        sheetSelect.appendChild(opt);
-                    }
-                });
-                
-                loadingStatus.textContent = 'Excel 讀取成功！';
-            })
-            .catch(error => {
-                console.error(error);
-                loadingStatus.textContent = `錯誤：${error.message}`;
-                loadingStatus.style.color = 'var(--low-text)';
-            });
-    };
+                const sheetSelect = document.getElementById('sheetSelect');
+                sheetSelect.innerHTML = '<option value="">請選擇</option>';
+                workbook.SheetNames.forEach(name => {
+                    if (name !== '總表') {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        sheetSelect.appendChild(opt);
+                    }
+                });
+                
+                loadingStatus.textContent = 'Excel 讀取成功！';
+            })
+            .catch(error => {
+                console.error(error);
+                loadingStatus.textContent = `錯誤：${error.message}`;
+                loadingStatus.style.color = 'var(--low-text)';
+            });
+    };
 
-    document.getElementById('sheetSelect').addEventListener('change', () => {
-      const sheetName = document.getElementById('sheetSelect').value;
-      if (!sheetName || !workbook) return;
+    document.getElementById('sheetSelect').addEventListener('change', () => {
+      const sheetName = document.getElementById('sheetSelect').value;
+      if (!sheetName || !workbook) return;
 
-      if (!sheetDataCache[sheetName]) {
-          const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-          headersCache[sheetName] = sheet.length > 0 ? sheet[0] : [];
-          sheetDataCache[sheetName] = sheet.slice(1);
-      }
-      
-      const currentSheetData = sheetDataCache[sheetName];
-      const headers = headersCache[sheetName];
-      const dateColumnIndex = 2; 
+      if (!sheetDataCache[sheetName]) {
+          const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+          headersCache[sheetName] = sheet.length > 0 ? sheet[0] : [];
+          sheetDataCache[sheetName] = sheet.slice(1);
+      }
+      
+      const currentSheetData = sheetDataCache[sheetName];
+      const headers = headersCache[sheetName];
+      const dateColumnIndex = 2; 
 
-      const dateSet = new Set();
-      for (let i = 0; i < currentSheetData.length; i++) {
-        const d = currentSheetData[i][dateColumnIndex];
-        if (d) dateSet.add(d);
-      }
-      
-      const dateSelect = document.getElementById('dateSelect');
-      dateSelect.innerHTML = '<option value="">全部</option>';
-      [...dateSet].sort().reverse().forEach(date => {
-        const opt = document.createElement('option');
-        opt.value = date;
-        opt.textContent = date;
-        dateSelect.appendChild(opt);
-      });
-      processAndRender(currentSheetData, headers);
-    });
-    
-    document.getElementById('dateSelect').addEventListener('change', () => {
-        compareData();
-    });
+      const dateSet = new Set();
+      for (let i = 0; i < currentSheetData.length; i++) {
+        const d = currentSheetData[i][dateColumnIndex];
+        if (d) dateSet.add(d);
+      }
+      
+      const dateSelect = document.getElementById('dateSelect');
+      dateSelect.innerHTML = '<option value="">全部</option>';
+      [...dateSet].sort().reverse().forEach(date => {
+        const opt = document.createElement('option');
+        opt.value = date;
+        opt.textContent = date;
+        dateSelect.appendChild(opt);
+      });
+      processAndRender(currentSheetData, headers);
+    });
+    
+    document.getElementById('dateSelect').addEventListener('change', () => {
+        compareData();
+    });
 
-    function compareData() {
-      const sheetName = document.getElementById('sheetSelect').value;
-      const dateFilter = document.getElementById('dateSelect').value;
-      if (!sheetName || !sheetDataCache[sheetName]) return;
+    function compareData() {
+      const sheetName = document.getElementById('sheetSelect').value;
+      const dateFilter = document.getElementById('dateSelect').value;
+      if (!sheetName || !sheetDataCache[sheetName]) return;
 
-      const currentSheetData = sheetDataCache[sheetName];
-      const headers = headersCache[sheetName];
-      const dateColumnIndex = 2;
-      
-      const filteredData = currentSheetData.filter(row => {
-          if (!row.length) return false;
-          return !dateFilter || row[dateColumnIndex] == dateFilter;
-      });
+      const currentSheetData = sheetDataCache[sheetName];
+      const headers = headersCache[sheetName];
+      const dateColumnIndex = 2;
+      
+      const filteredData = currentSheetData.filter(row => {
+          if (!row.length) return false;
+          return !dateFilter || row[dateColumnIndex] == dateFilter;
+      });
 
-      processAndRender(filteredData, headers);
-    }
-    
-    function processAndRender(dataRows, headers) {
-        const body = [];
-        for (let i = 0; i < dataRows.length; i++) {
-            const row = dataRows[i];
-            const item = [...row];
-            const code = (item[0] || '').replace(/-M$/, '');
-            const refRow = refSheetMap.get(code);
-            const colorMark = Array(21).fill('');
+      processAndRender(filteredData, headers);
+    }
+    
+    function processAndRender(dataRows, headers) {
+        const body = [];
+        for (let i = 0; i < dataRows.length; i++) {
+            const row = dataRows[i];
+            const item = [...row];
+            const code = (item[0] || '').replace(/-M$/, '');
+            const refRow = refSheetMap.get(code);
+            const colorMark = Array(21).fill('');
 
-            if (refRow) {
+            if (refRow) {
                 // ***** 這裡是修改後的核心邏輯 *****
-                [[5, 4, 5], [8, 6, 7], [9, 8, 9], [10, 10, 11], [11, 12, 13]].forEach(([col, low, high]) => {
-                    const val = parseFloat(item[col]);
-                    const min = parseFloat(refRow[low]);
-                    const max = parseFloat(refRow[high]);
-                    if (!isNaN(val)) {
-                        if (!isNaN(min) && val < min) colorMark[col] = 'low';
-                        else if (!isNaN(max) && val > max) colorMark[col] = 'high';
-                    }
-                });
-            }
-            body.push({ row: item, mark: colorMark });
-        }
-        renderTable(headers, body);
-    }
+                [[5, 4, 5], [8, 6, 7], [9, 8, 9], [10, 10, 11], [11, 12, 13]].forEach(([col, low, high]) => {
+                    const val = parseFloat(item[col]);
+                    const min = parseFloat(refRow[low]);
+                    const max = parseFloat(refRow[high]);
+                    if (!isNaN(val)) {
+                        if (!isNaN(min) && val < min) colorMark[col] = 'low';
+                        else if (!isNaN(max) && val > max) colorMark[col] = 'high';
+                    }
+                });
+            }
+            body.push({ row: item, mark: colorMark });
+        }
+        renderTable(headers, body);
+    }
 
-    function renderTable(headers, body) {
-        const output = document.getElementById('output');
-        output.innerHTML = '';
+    function renderTable(headers, body) {
+        const output = document.getElementById('output');
+        output.innerHTML = '';
 
-        if (!headers || headers.length === 0) return;
+        if (!headers || headers.length === 0) return;
 
-        if (body.length === 0) {
-            output.innerHTML = '<p style="text-align:center; padding: 2em;">在指定條件下沒有找到資料。</p>';
-            return;
-        }
+        if (body.length === 0) {
+            output.innerHTML = '<p style="text-align:center; padding: 2em;">在指定條件下沒有找到資料。</p>';
+            return;
+        }
 
-        const table = document.createElement('table');
-        const header = document.createElement('tr');
-        headers.forEach(title => {
-            const th = document.createElement('th');
-            th.textContent = title;
-            header.appendChild(th);
-        });
-        table.appendChild(header);
+        const table = document.createElement('table');
+        const header = document.createElement('tr');
+        headers.forEach(title => {
+            const th = document.createElement('th');
+            th.textContent = title;
+            header.appendChild(th);
+        });
+        table.appendChild(header);
 
-        body.forEach(({ row, mark }) => {
-            const tr = document.createElement('tr');
-            for (let i = 0; i < headers.length; i++) {
-                const td = document.createElement('td');
-                td.textContent = row[i] ?? '';
-                if (mark[i]) td.classList.add(mark[i]);
-                tr.appendChild(td);
-            }
-            table.appendChild(tr);
-        });
-        output.appendChild(table);
-    }
-  </script>
+        body.forEach(({ row, mark }) => {
+            const tr = document.createElement('tr');
+            for (let i = 0; i < headers.length; i++) {
+                const td = document.createElement('td');
+                td.textContent = row[i] ?? '';
+                if (mark[i]) td.classList.add(mark[i]);
+                tr.appendChild(td);
+            }
+            table.appendChild(tr);
+        });
+        output.appendChild(table);
+    }
+  </script>
 </body>
 </html>
