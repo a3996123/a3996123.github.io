@@ -6,8 +6,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+
   <style>
-    /* 【說明】您的 CSS 樣式完全保留，不做任何修改 */
+    /* 您的 CSS 樣式完全保留 */
     :root {
       --bg-color: #1d1e22;
       --surface-color: #2c2d32;
@@ -29,7 +32,7 @@
     select, button, label { font-size: 1em; font-family: 'Poppins', sans-serif; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); padding: 0.8em 1.2em; transition: all 0.3s ease; }
     select:focus, input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
     button { background: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: 500; }
-    button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4); }
+    button:hover { background: var(--primary-hover); transform: translateY(-px); box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4); }
     #output { background: var(--surface-color); padding: 2em; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
     table { border-collapse: collapse; width: 100%; font-size: 0.85em; table-layout: fixed; word-break: break-all; }
     th { background: var(--primary-color); color: white; padding: 0.8em 0.5em; font-weight: 600; }
@@ -40,7 +43,6 @@
     tbody tr:last-child td { border-bottom: none; }
     .low { background-color: var(--low-bg); color: var(--low-text); font-weight: 600; }
     .high { background-color: var(--high-bg); color: var(--high-text); font-weight: 600; }
-    /* 【新增】讀取狀態的樣式 */
     #loadingStatus { font-weight: 500; color: var(--primary-hover); }
   </style>
 </head>
@@ -56,12 +58,16 @@
             </label>
             
             <label>
-              選擇製造日期（可選）：
+              選擇製造日期：
               <select id="dateSelect"><option value="">全部</option></select>
             </label>
             
             <button onclick="compareData()">🚀 執行比對</button>
             
+            <button onclick="filterByDateRange(1)">今天</button>
+            <button onclick="filterByDateRange(3)">近三天</button>
+            <button onclick="filterByDateRange(7)">近七天</button>
+
             <div id="loadingStatus"></div>
         </div>
     </div>
@@ -71,30 +77,25 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    // 【說明】這裡保留了您所有的核心比對邏輯變數
     let workbook, refSheetMap = new Map();
+    let sheetDataCache = {}; // 用來快取已解析的分頁資料
+    let headersCache = {};   // 用來快取分頁的標頭
 
-    // 【修改】這裡是主要變動：將手動選擇檔案，改為在網頁載入時自動從伺服器讀取
     window.onload = function() {
-        // 【重要】請確保這個路徑和檔名與您上傳到 GitHub 的 Excel 檔案一致
         const excelFilePath = 'data/成品品質檢驗表2025.xlsx'; 
         const loadingStatus = document.getElementById('loadingStatus');
         
-        loadingStatus.textContent = '正在從伺服器讀取 Excel 檔案...';
+        loadingStatus.textContent = '正在讀取 Excel 檔案...';
 
-        // 使用 fetch API 獲取遠端的 Excel 檔案
         fetch(excelFilePath)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('無法載入 Excel 檔案，請檢查檔案路徑是否正確。');
-                }
-                return response.arrayBuffer(); // 將回應轉換成 ArrayBuffer
+                if (!response.ok) throw new Error('無法載入 Excel 檔案');
+                return response.arrayBuffer();
             })
             .then(data => {
                 const dataArray = new Uint8Array(data);
                 workbook = XLSX.read(dataArray, { type: 'array' });
                 
-                // 【說明】以下這段處理總表、建立 refSheetMap 的邏輯完全來自您的原始碼，保持不變
                 const refSheet = XLSX.utils.sheet_to_json(workbook.Sheets['總表'], { header: 1 });
                 refSheetMap.clear();
                 for (let i = 1; i < refSheet.length; i++) {
@@ -103,7 +104,6 @@
                     refSheetMap.set(String(row[1]), row);
                 }
 
-                // 【說明】這段填充分頁下拉選單的邏輯也完全來自您的原始碼
                 const sheetSelect = document.getElementById('sheetSelect');
                 sheetSelect.innerHTML = '<option value="">請選擇</option>';
                 workbook.SheetNames.forEach(name => {
@@ -114,10 +114,8 @@
                         sheetSelect.appendChild(opt);
                     }
                 });
-
-                document.getElementById('dateSelect').innerHTML = '<option value="">全部</option>';
-                document.getElementById('output').innerHTML = '';
-                loadingStatus.textContent = 'Excel 檔案讀取成功！';
+                
+                loadingStatus.textContent = 'Excel 讀取成功！';
             })
             .catch(error => {
                 console.error(error);
@@ -126,29 +124,39 @@
             });
     };
 
-    // 【說明】這個監聽分頁選擇、並填入日期的功能，完全來自您的原始碼，保持不變
     document.getElementById('sheetSelect').addEventListener('change', () => {
       const sheetName = document.getElementById('sheetSelect').value;
       if (!sheetName || !workbook) return;
-      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+
+      // 使用快取避免重複解析
+      if (!sheetDataCache[sheetName]) {
+          const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+          headersCache[sheetName] = sheet.length > 0 ? sheet[0] : [];
+          sheetDataCache[sheetName] = sheet.slice(1);
+      }
+      
+      const currentSheetData = sheetDataCache[sheetName];
+      const headers = headersCache[sheetName];
+      // 【重要】確認日期所在的欄位索引 (C欄 = 2)
+      const dateColumnIndex = 2; 
+
       const dateSet = new Set();
-      for (let i = 1; i < sheet.length; i++) {
-        const d = sheet[i][2];
+      for (let i = 0; i < currentSheetData.length; i++) {
+        const d = currentSheetData[i][dateColumnIndex];
         if (d) dateSet.add(d);
       }
+      
       const dateSelect = document.getElementById('dateSelect');
       dateSelect.innerHTML = '<option value="">全部</option>';
-      [...dateSet].forEach(date => {
+      [...dateSet].sort().reverse().forEach(date => {
         const opt = document.createElement('option');
         opt.value = date;
         opt.textContent = date;
         dateSelect.appendChild(opt);
       });
-      // 自動觸發一次比對，顯示該分頁全部資料
       compareData(); 
     });
 
-    // 【說明】您的核心比對函式 compareData()，完全來自您的原始碼，保持不變
     function compareData() {
       const sheetName = document.getElementById('sheetSelect').value;
       const dateFilter = document.getElementById('dateSelect').value;
@@ -181,34 +189,103 @@
         body.push({ row: item, mark: colorMark });
       }
 
-      const output = document.getElementById('output');
-      output.innerHTML = '';
-      const table = document.createElement('table');
-      const header = document.createElement('tr');
-      const headers = [
-        '產品編號','桶別','製造日期','機台','班別',
-        'MI(2.16kg)', 'MI(5kg)', 'MI(21.6kg)','耐衝擊 kg-cm','耐衝擊 kg-cm/cm^2','硬度','密度','縮水',
-        '白點','顆粒','色澤','L值','A值','B值','等級區分','備註'
-      ];
-      headers.forEach(title => {
-        const th = document.createElement('th');
-        th.textContent = title;
-        header.appendChild(th);
-      });
-      table.appendChild(header);
-
-      body.forEach(({ row, mark }) => {
-        const tr = document.createElement('tr');
-        for (let i = 0; i < 21; i++) {
-          const td = document.createElement('td');
-          td.textContent = row[i] ?? '';
-          if (mark[i]) td.classList.add(mark[i]);
-          tr.appendChild(td);
-        }
-        table.appendChild(tr);
-      });
-      output.appendChild(table);
+      renderTable(sheet.slice(0, 1)[0], body);
     }
+    
+    // 【新增】處理日期範圍篩選的函式
+    function filterByDateRange(days) {
+        const sheetName = document.getElementById('sheetSelect').value;
+        if (!sheetName || !sheetDataCache[sheetName]) {
+            document.getElementById('output').innerHTML = '請先選擇一個分頁。';
+            return;
+        }
+
+        // 當使用快速篩選時，清空手動日期選擇，避免衝突
+        document.getElementById('dateSelect').value = '';
+
+        const currentSheetData = sheetDataCache[sheetName];
+        const headers = headersCache[sheetName];
+        // 【重要】確認日期所在的欄位索引 (C欄 = 2)
+        const dateColumnIndex = 2; 
+
+        const today = dayjs();
+        const startDate = today.subtract(days - 1, 'day').startOf('day');
+
+        const body = [];
+        for (let i = 0; i < currentSheetData.length; i++) {
+            const row = currentSheetData[i];
+            if (!row.length) continue;
+
+            let rowDate;
+            const dateValue = row[dateColumnIndex];
+
+            // 處理 Excel 日期數字或文字格式
+            if (typeof dateValue === 'number') {
+                const jsDate = new Date((dateValue - 25569) * 86400 * 1000);
+                rowDate = dayjs(jsDate);
+            } else {
+                rowDate = dayjs(dateValue);
+            }
+            
+            // 進行日期比較
+            if (rowDate.isValid() && rowDate.isAfter(startDate) && rowDate.isBefore(today.endOf('day'))) {
+                // 這段比對邏輯與 compareData() 函式中的完全相同
+                const item = [...row];
+                const code = (item[0] || '').replace(/-M$/, '');
+                const refRow = refSheetMap.get(code);
+                const colorMark = Array(21).fill('');
+
+                if (refRow) {
+                    [[5, 4, 5], [8, 6, 7], [10, 9,10], [11,11,12]].forEach(([col, low, high]) => {
+                        const val = parseFloat(item[col]);
+                        const min = parseFloat(refRow[low]);
+                        const max = parseFloat(refRow[high]);
+                        if (!isNaN(val)) {
+                            if (!isNaN(min) && val < min) colorMark[col] = 'low';
+                            else if (!isNaN(max) && val > max) colorMark[col] = 'high';
+                        }
+                    });
+                }
+                body.push({ row: item, mark: colorMark });
+            }
+        }
+        renderTable(headers, body);
+    }
+
+    // 【修改】將 renderTable 函式獨立出來，方便重複使用
+    function renderTable(headers, body) {
+        const output = document.getElementById('output');
+        output.innerHTML = '';
+
+        if (body.length === 0) {
+            output.innerHTML = '<p>在指定日期範圍內沒有找到資料。</p>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        const header = document.createElement('tr');
+
+        // 使用傳入的 headers 參數建立表頭
+        headers.forEach(title => {
+            const th = document.createElement('th');
+            th.textContent = title;
+            header.appendChild(th);
+        });
+        table.appendChild(header);
+
+        body.forEach(({ row, mark }) => {
+            const tr = document.createElement('tr');
+            for (let i = 0; i < headers.length; i++) {
+                const td = document.createElement('td');
+                td.textContent = row[i] ?? '';
+                if (mark[i]) td.classList.add(mark[i]);
+                tr.appendChild(td);
+            }
+            table.appendChild(tr);
+        });
+        output.appendChild(table);
+    }
+
   </script>
 </body>
 </html>
