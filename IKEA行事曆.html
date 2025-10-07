@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel 生產排程轉換工具 (v16.0 - 精確結束班別)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 10px;
+        }
+        p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+        input[type="file"] {
+            flex-grow: 1;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            background-color: #155ab6;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        #downloadBtn {
+            background-color: #34a853;
+        }
+        #downloadBtn:hover {
+            background-color: #2b8a43;
+        }
+        #status {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 24px;
+        }
+        .preview-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Excel 生產排程轉換工具 (v16.0 - 精確結束班別)</h1>
+        <p>請上傳 Excel 檔案，工具將自動轉換為每日三班制的詳細排程。</p>
+        
+        <div class="controls">
+            <input type="file" id="fileInput" accept=".xlsx, .xls">
+            <button id="processBtn">開始轉換排程</button>
+            <button id="downloadBtn" style="display:none;">下載轉換後的 Excel 檔案</button>
+        </div>
+
+        <div id="status"></div>
+        
+        <div class="preview-container" id="preview"></div>
+    </div>
+
+<script>
+    let finalScheduleData = [];
+    const SHIFTS = ['A', 'B', 'C'];
+    const WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+    const holidays = new Set([
+        '2024-01-01', '2024-02-08', '2024-02-09', '2024-02-12', '2024-02-13', '2024-02-14', '2024-02-28', '2024-04-04', '2024-04-05', '2024-06-10', '2024-09-17', '2024-10-10',
+        '2025-01-01', '2025-01-28', '2025-01-29', '2025-01-30', '2025-01-31', '2025-02-28', '2025-04-04', '2025-04-05', '2025-05-31', '2025-10-06', '2025-10-10',
+        '2026-01-01', '2026-02-16', '2026-02-17', '2026-02-18', '2026-02-19', '2026-02-20', '2026-02-27', '2026-02-28', '2026-04-04', '2026-06-19', '2026-09-25', '2026-10-10'
+    ]);
+
+    const fileInput = document.getElementById('fileInput');
+    const processBtn = document.getElementById('processBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const statusDiv = document.getElementById('status');
+    const previewDiv = document.getElementById('preview');
+
+    function addToSchedule(scheduleMap, key, productObject) {
+        if (!scheduleMap.has(key)) {
+            scheduleMap.set(key, []);
+        }
+        scheduleMap.get(key).push(productObject);
+    }
+
+    processBtn.addEventListener('click', () => {
+        const file = fileInput.files[0];
+        if (!file) { updateStatus('請先選擇一個 Excel 檔案！', 'error'); return; }
+
+        updateStatus('正在處理中...', 'processing');
+        finalScheduleData = [];
+        previewDiv.innerHTML = '';
+        downloadBtn.style.display = 'none';
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                const sheetNames = workbook.SheetNames;
+                let scheduleMap = new Map();
+                let carryOverYear = new Date().getFullYear();
+
+                sheetNames.forEach(sheetName => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+                    const dataRows = rows.slice(2);
+
+                    dataRows.forEach((row) => {
+                        if (!row || row.length < 3 || !row[2]) return;
+                        const dateRangesStr = String(row[0]).replace(/機/g, '').trim();
+                        const remarksStr = String(row[1]).trim();
+                        const productID = String(row[2]).trim();
+                        let rowYear = carryOverYear;
+                        if (dateRangesStr) {
+                            const yearMatch = dateRangesStr.match(/(\d{4})[\/／.]/);
+                            if (yearMatch) {
+                                rowYear = parseInt(yearMatch[1], 10);
+                                carryOverYear = rowYear;
+                            }
+                        }
+                        
+                        const occupiedByTrial = new Set();
+                        let finalProdDate = null;
+                        let finalProdShift = null;
+
+                        if (remarksStr) {
+                            // 處理試生產
+                            const trialRegex = /(\d{1,2})\s*[\/／.]\s*(\d{1,2})\s*試生產\s*([ABC])班/gi;
+                            let matchTrial;
+                            while ((matchTrial = trialRegex.exec(remarksStr)) !== null) {
+                                const month = parseInt(matchTrial[1], 10);
+                                const day = parseInt(matchTrial[2], 10);
+                                const shift = matchTrial[3].toUpperCase();
+                                const trialDate = new Date(rowYear, month - 1, day);
+                                const dateString = formatDate(trialDate);
+                                const trialProduct = { '日期': dateString, '星期': WEEKDAYS[trialDate.getDay()], '班別': shift, '產品編號': `${productID}(試)`, '備註': '' };
+                                addToSchedule(scheduleMap, `${dateString}-${shift}`, trialProduct);
+                                occupiedByTrial.add(`${productID}-${dateString}-${shift}`);
+                            }
+
+                            // *** 新增：處理結束班別指令 ***
+                            const endShiftRegex = /(\d{1,2})\s*[\/／.]\s*(\d{1,2})\s*生產(?:到)?\s*([ABC])班/i;
+                            const endShiftMatch = endShiftRegex.exec(remarksStr);
+                            if (endShiftMatch) {
+                                const month = parseInt(endShiftMatch[1], 10);
+                                const day = parseInt(endShiftMatch[2], 10);
+                                finalProdShift = endShiftMatch[3].toUpperCase();
+                                const endDateObj = new Date(rowYear, month - 1, day);
+                                finalProdDate = formatDate(endDateObj);
+                            }
+                        }
+
+                        if (dateRangesStr) {
+                            const dateParts = dateRangesStr.split('+');
+                            dateParts.forEach(part => {
+                                const [startStr, endStr] = part.split('-');
+                                if (!startStr) return;
+                                const startDate = parseDate(startStr.trim(), rowYear);
+                                let endDate = endStr ? parseDate(endStr.trim(), rowYear) : startDate;
+
+                                // 如果備註指定了結束日期，且該日期比A欄的結束日期早，則以備註為準
+                                if(finalProdDate) {
+                                    const finalDateObj = new Date(finalProdDate);
+                                    if(finalDateObj < endDate) {
+                                        endDate = finalDateObj;
+                                    }
+                                }
+                                
+                                if (startDate && endDate && !isNaN(startDate) && !isNaN(endDate)) {
+                                    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                                        const currentDateStr = formatDate(d);
+                                        for (const shift of SHIFTS) {
+                                            // *** 新增：檢查是否超過指定的結束點 ***
+                                            if (finalProdDate && currentDateStr === finalProdDate && shift > finalProdShift) {
+                                                continue;
+                                            }
+                                            
+                                            const occupiedKey = `${productID}-${currentDateStr}-${shift}`;
+                                            if (occupiedByTrial.has(occupiedKey)) continue;
+                                            
+                                            const scheduleKey = `${currentDateStr}-${shift}`;
+                                            const productObject = { '日期': currentDateStr, '星期': WEEKDAYS[d.getDay()], '班別': shift, '產品編號': productID, '備註': '' };
+                                            addToSchedule(scheduleMap, scheduleKey, productObject);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                finalScheduleData = Array.from(scheduleMap.values()).flat().sort((a, b) => {
+                    const valA = `${a['日期']}-${a['班別']}-${a['產品編號']}`;
+                    const valB = `${b['日期']}-${b['班別']}-${b['產品編號']}`;
+                    return valA.localeCompare(valB);
+                });
+                
+                if (finalScheduleData.length > 0) {
+                    displayPreview(finalScheduleData);
+                    downloadBtn.style.display = 'inline-block';
+                    updateStatus(`成功！處理了 ${sheetNames.length} 個分頁，共生成 ${finalScheduleData.length} 筆排程。`, 'success');
+                } else {
+                    updateStatus('找不到可轉換的資料，請檢查 Excel 檔案格式與內容。', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                updateStatus('處理檔案時發生錯誤，請確認檔案格式是否正確。', 'error');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    downloadBtn.addEventListener('click', () => {
+        if (finalScheduleData.length === 0) { updateStatus('沒有可下載的資料。', 'error'); return; }
+        
+        const scheduleWorksheet = XLSX.utils.json_to_sheet(finalScheduleData);
+        const filenamesData = [{'內部檔名': '內部檔名', '時間(1)': '時間(1)', '時間(2)': '時間(2)'}];
+        const lastTimePerDay = new Map();
+
+        finalScheduleData.forEach(row => {
+            const originalDateStr = row['日期'];
+            const shift = row['班別'];
+            const productID = row['產品編號'];
+            
+            const originalDateObj = new Date(originalDateStr);
+            const fn_year = originalDateObj.getFullYear();
+            const fn_month = String(originalDateObj.getMonth() + 1).padStart(2, '0');
+            const fn_day = String(originalDateObj.getDate()).padStart(2, '0');
+            const formattedDateForFilename = `${fn_year}-${fn_month}${fn_day}`;
+
+            let filename = '';
+            if (productID.endsWith('(試)')) {
+                const productIDWithoutTrial = productID.slice(0, -3);
+                filename = `${formattedDateForFilename}_${productIDWithoutTrial}(T)`;
+            } else {
+                filename = `${formattedDateForFilename}_${productID}(${shift})`;
+            }
+
+            const timestampBaseDate = calculateFilenameDate(originalDateStr, shift);
+            const dateKeyForTimestamp = toHolidayFormat(timestampBaseDate);
+            
+            let startTime;
+            if (!lastTimePerDay.has(dateKeyForTimestamp)) {
+                startTime = new Date(timestampBaseDate);
+                startTime.setHours(8, 30, Math.floor(Math.random() * 60));
+            } else {
+                const lastTime = lastTimePerDay.get(dateKeyForTimestamp);
+                const minMilliseconds = 8 * 60 * 1000;
+                const maxMilliseconds = 20 * 60 * 1000;
+                const randomInterval = minMilliseconds + Math.random() * (maxMilliseconds - minMilliseconds);
+                startTime = new Date(lastTime.getTime() + randomInterval);
+                startTime.setSeconds(Math.floor(Math.random() * 60));
+            }
+            lastTimePerDay.set(dateKeyForTimestamp, startTime);
+
+            const endTime = new Date(startTime.getTime() + 5 * 1000);
+            const startTimeStr = formatTimestamp(startTime);
+            const endTimeStr = formatTimestamp(endTime);
+
+            filenamesData.push({ '內部檔名': filename, '時間(1)': startTimeStr, '時間(2)': endTimeStr });
+        });
+
+        const filenamesWorksheet = XLSX.utils.json_to_sheet(filenamesData, { skipHeader: true });
+        const newWorkbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(newWorkbook, scheduleWorksheet, '生產排程');
+        XLSX.utils.book_append_sheet(newWorkbook, filenamesWorksheet, '內部檔名');
+        
+        XLSX.writeFile(newWorkbook, '生成的生產排程.xlsx');
+    });
+
+    function updateStatus(message, type) {
+        statusDiv.textContent = message;
+        statusDiv.style.color = type === 'error' ? '#d32f2f' : (type === 'success' ? '#34a853' : '#333');
+    }
+
+    function parseDate(dateStr, year) {
+        const cleanedStr = dateStr.replace(/(\d{4})[\/／.]/, '');
+        const parts = cleanedStr.split(/[\/／.]/);
+        if (parts.length < 2) return null;
+        return new Date(year, parseInt(parts[0], 10) - 1, parseInt(parts[1], 10));
+    }
+    
+    function formatDate(date) {
+        if (!date || isNaN(date)) return '';
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}/${m}/${d}`;
+    }
+
+    function toHolidayFormat(date) {
+        if (!date || isNaN(date)) return '';
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function formatTimestamp(date) {
+        if (!date || isNaN(date)) return '';
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const h = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        const s = String(date.getSeconds()).padStart(2, '0');
+        return `${y}${m}${d}${h}${min}${s}`;
+    }
+    
+    function calculateFilenameDate(productionDateStr, shift) {
+        let filenameDate = new Date(productionDateStr);
+        if (shift === 'B' || shift === 'C') {
+            filenameDate.setDate(filenameDate.getDate() + 1);
+        }
+        const productionDates = new Set(finalScheduleData.map(row => row['日期']));
+        while (true) {
+            const dayOfWeek = filenameDate.getDay();
+            const dateKey = toHolidayFormat(filenameDate);
+            const scheduleKey = formatDate(filenameDate);
+            const isSunday = dayOfWeek === 0;
+            const isSkippedHoliday = holidays.has(dateKey) && !productionDates.has(scheduleKey);
+            if (isSunday || isSkippedHoliday) {
+                filenameDate.setDate(filenameDate.getDate() + 1);
+            } else {
+                break;
+            }
+        }
+        return filenameDate;
+    }
+
+    function displayPreview(data) {
+        if (data.length === 0) { previewDiv.innerHTML = ''; return; }
+        let table = '<table><thead><tr>';
+        const headers = Object.keys(data[0]);
+        headers.forEach(header => table += `<th>${header}</th>`);
+        table += '</tr></thead><tbody>';
+        data.forEach(row => {
+            table += '<tr>';
+            headers.forEach(header => table += `<td>${row[header] || ''}</td>`);
+            table += '</tr>';
+        });
+        table += '</tbody></table>';
+        previewDiv.innerHTML = table;
+    }
+</script>
+</body>
+</html>

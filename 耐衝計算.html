@@ -1,93 +1,274 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant-TW">
 <head>
-  <meta charset="UTF-8">
-  <title>耐衝計算</title>
-  <style>
-    /* 可選：添加一些樣式 */
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>耐衝計算器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: #0f0c29;
+            background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Responsive Wrapper */
+        .main-wrapper {
+            display: flex;
+            flex-direction: row; /* Default: side-by-side */
+            justify-content: center;
+            align-items: flex-start; /* Align tops */
+            gap: 40px; /* Space between calculators */
+            width: 100%;
+            max-width: 900px; /* Max width for side-by-side layout */
+        }
+
+        /* Main Calculator Container */
+        .container {
+            width: 100%;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4), 0 0 30px rgba(0, 255, 255, 0.4);
+            flex: 1; /* Allow containers to grow equally */
+        }
+
+        /* Title Styling */
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ffffff;
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 30px;
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #00ffff;
+        }
+
+        /* Input Group Styling */
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ffff;
+            font-weight: 400;
+            font-size: 0.9em;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 2px solid #ff00ff;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Styling for the placeholder text */
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9em;
+        }
+
+        input[type="number"]:focus {
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        input[readonly] {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 0, 255, 0.5);
+            color: #cccccc;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease-in-out;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.8), 0 0 25px rgba(0, 255, 255, 0.8);
+        }
+
+        /* Media Query for narrow screens */
+        @media (max-width: 992px) {
+            .main-wrapper {
+                flex-direction: column; /* Stack them vertically */
+                align-items: center; /* Center them */
+            }
+            .container {
+                width: 100%;
+                max-width: 420px; /* Constrain width on mobile */
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <h2>耐衝計算</h2>
+    <div class="main-wrapper">
+        <div class="container">
+            <h2>耐衝計算 I</h2>
+            <div class="input-group">
+                <label for="inputField1">輸入值：</label>
+                <input type="number" id="inputField1" onkeydown="if(event.key==='Enter') calculate()" placeholder="(輸入新耐衝kg-cm的數值)">
+            </div>
+            <div class="input-group">
+                <label>舊耐衝(kg-cm)：</label>
+                <input type="text" id="result1_1" readonly>
+            </div>
+            <div class="input-group">
+                <label>新耐衝(kg-cm/cm)：</label>
+                <input type="text" id="result1_2" readonly>
+            </div>
+            <div class="input-group">
+                <label>新耐衝(kg-cm/cm²)：</label>
+                <input type="text" id="result1_3" readonly>
+            </div>
+        </div>
 
-  <label for="inputField">請輸入一個值：</label>
-  <input type="number" id="inputField" onkeydown="if(event.keyCode===13) calculate()"> 
+        <div class="container">
+            <h2>耐衝計算 II</h2>
+            <div class="input-group">
+                <label for="inputField2">輸入值：</label>
+                <input type="number" id="inputField2" onkeydown="if(event.key==='Enter') calculate()" placeholder="(輸入舊耐衝kg-cm的數值)">
+            </div>
+             <div class="input-group">
+                <label for="output4">舊耐衝(kg-cm)：</label>
+                <input type="text" id="output4" readonly>
+            </div>
+            <div class="input-group">
+                <label for="output1">新耐衝(kg-cm)：</label>
+                <input type="text" id="output1" readonly>
+            </div>
+            <div class="input-group">
+                <label for="output2">新耐衝(kg-cm/cm)：</label>
+                <input type="text" id="output2" readonly>
+            </div>
+            <div class="input-group">
+                <label for="output3">新耐衝(kg-cm/cm²)：</label>
+                <input type="text" id="output3" readonly>
+            </div>
+            <button onclick="calculate()">計算</button>
+        </div>
+    </div>
 
-  <p>舊耐衝(kg-cm)：<span id="resultParagraph1"></span></p>
-  <p>新耐衝(kg-cm/cm)：<span id="resultParagraph2"></span></p> 
-  <p>新耐衝(kg-cm/cm^2)：<span id="resultParagraph3"></span></p>
+    <script>
+        const lookupTable = {
+            29.25: 77, 28.80: 78, 28.34: 79, 27.88: 80, 27.42: 81, 26.99: 82, 26.49: 83, 26.02: 84,
+            25.56: 85, 25.09: 86, 24.62: 87, 24.16: 88, 23.69: 89, 23.22: 90, 22.75: 91, 22.29: 92,
+            21.82: 93, 21.35: 94, 20.88: 95, 20.42: 96, 19.95: 97, 19.49: 98, 19.03: 99, 18.56: 100,
+            18.10: 101, 17.65: 102, 17.19: 103, 16.73: 104, 16.28: 105, 15.83: 106, 15.38: 107, 14.93: 108,
+            14.49: 109, 14.05: 110, 13.61: 111, 13.18: 112, 12.74: 113, 12.31: 114, 11.89: 115, 11.47: 116,
+            11.05: 117, 10.63: 118, 10.22: 119, 9.81: 120, 9.41: 121, 9.01: 122, 8.62: 123, 8.24: 124,
+            7.84: 125, 7.46: 126, 7.08: 127, 6.71: 128, 6.35: 129, 5.99: 130, 5.63: 131, 5.28: 132,
+            4.93: 133, 4.59: 134, 4.26: 135, 3.93: 136, 3.61: 137, 3.29: 138, 2.98: 139, 2.68: 140,
+            2.38: 141, 2.09: 142, 1.81: 143, 1.53: 144, 1.26: 145, 0.99: 146, 0.73: 147, 0.48: 148,
+            0.24: 149, 0.00: 150
+        };
 
-  <script>
-    // 對照表數據
-    const lookupTable = {
-      9.81: 120,
-      9.41: 121,
-      9.01: 122,
-      8.62: 123,
-      8.24: 124,
-      7.84: 125,
-      7.46: 126,
-      7.08: 127,
-      6.71: 128,
-      6.35: 129,
-      5.99: 130,
-      5.63: 131,
-      5.28: 132,
-      4.93: 133,
-      4.59: 134,
-      4.26: 135,
-      3.93: 136,
-      3.61: 137,
-      3.29: 138,
-      2.98: 139,
-      2.68: 140,
-      2.38: 141,
-      2.09: 142,
-      1.81: 143,
-      1.53: 144,
-      1.26: 145,
-      0.99: 146,
-      0.73: 147,
-      0.48: 148,
-      0.24: 149,
-      0.00: 150
-    };
-
-    function findClosestKey(value) {
-      let minDiff = Infinity;
-      let closestKey = null;
-      for (const key in lookupTable) {
-        const diff = Math.abs(key - value);
-        if (diff < minDiff) {
-          minDiff = diff;
-          closestKey = key;
+        function findClosestKey(value) {
+            let minDiff = Infinity;
+            let closestKey = null;
+            for (const key in lookupTable) {
+                const diff = Math.abs(key - value);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestKey = key;
+                }
+            }
+            return closestKey;
         }
-      }
-      return closestKey;
-    }
 
-    function calculate() {
-      const inputField = document.getElementById("inputField");
-      const resultParagraph1 = document.getElementById("resultParagraph1");
-      const resultParagraph2 = document.getElementById("resultParagraph2");
-      const resultParagraph3 = document.getElementById("resultParagraph3");
+        function calculate() {
+            // --- 耐衝計算 I ---
+            const inputField1 = document.getElementById("inputField1");
+            const inputValue1 = parseFloat(inputField1.value) || 0; // Treat empty as 0
+            
+            // Outputs for Calculator I
+            const result1_1 = document.getElementById("result1_1");
+            const result1_2 = document.getElementById("result1_2");
+            const result1_3 = document.getElementById("result1_3");
 
-      const inputValue = parseFloat(inputField.value);
+            if (inputField1.value !== "") {
+                const calculatedValue1 = inputValue1 + 2.2;
+                const calculatedValue1_2 = inputValue1 + ((Math.random() - 0.5) * 0.6);
+                const closestKey1 = findClosestKey(calculatedValue1);
 
-      const calculatedValue = inputValue + 2.2;
-      const closestKey = findClosestKey(calculatedValue);
+                if (closestKey1 !== null) {
+                    result1_1.value = lookupTable[closestKey1] + " (" + closestKey1 + ")";
+                } else {
+                    result1_1.value = "查無對應值";
+                }
+                result1_2.value = (calculatedValue1_2 / 0.317).toFixed(2);
+                result1_3.value = (calculatedValue1_2 / 0.317 / 1.036).toFixed(1);
+            } else {
+                result1_1.value = "";
+                result1_2.value = "";
+                result1_3.value = "";
+            }
 
-      if (closestKey !== null) {
-        resultParagraph1.textContent = lookupTable[closestKey] + "(" + closestKey + ")";
-      } else {
-        resultParagraph1.textContent = "查無對應值";
-      }
 
-      resultParagraph2.textContent = (inputValue / 0.317).toFixed(2);
-      resultParagraph3.textContent = (inputValue / 0.317 / 1.062).toFixed(1); 
-    }
-  </script>
+            // --- 耐衝計算 II ---
+            const inputField2 = document.getElementById("inputField2");
+            const inputValue2 = parseFloat(inputField2.value); // No || 0, let it be NaN if empty
+
+            if (inputField2.value !== "") {
+                const randomOffset = Math.random() * 0.2 - 0.1;
+                const output1 = inputValue2 - 2.2 + randomOffset;
+                const output2 = output1 / 0.317;
+                const output3 = output2 / 1.023;
+                // Use .toFixed() on inputValue2 to match the key format
+                const formattedInput = inputValue2.toFixed(2);
+                const output4 = lookupTable.hasOwnProperty(formattedInput) ? lookupTable[formattedInput] + " (" + formattedInput + ")" : "N/A";
+
+                document.getElementById("output1").value = output1.toFixed(2);
+                document.getElementById("output2").value = output2.toFixed(2);
+                document.getElementById("output3").value = output3.toFixed(1);
+                document.getElementById("output4").value = output4;
+            } else {
+                document.getElementById("output1").value = "";
+                document.getElementById("output2").value = "";
+                document.getElementById("output3").value = "";
+                document.getElementById("output4").value = "";
+            }
+        }
+    </script>
 
 </body>
 </html>

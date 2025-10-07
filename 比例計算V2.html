@@ -3,40 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>比例計算器</title>
+    <title>比例計算器 (可滾動版)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        /* General Styling */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: #0f0c29; /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            color: #f0f0f0;
+
+            /* === CSS修正部分 === */
+            min-height: 100vh; /* 確保body至少和螢幕一樣高，但允許內容撐開 */
+            display: flex;
+            justify-content: center;
+            padding: 50px 20px; /* 在上下增加50px間距，左右20px */
+            box-sizing: border-box; /* 讓padding被包含在寬高中，避免版面問題 */
         }
+
+        /* Main Calculator Container */
         .container {
-            max-width: 300px;
-            margin: auto;
+            width: 380px;
+            max-width: 100%; /* 在小螢幕上不會超出畫面 */
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* For Safari */
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.6);
+            text-align: center;
         }
+
+        /* Title Styling */
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ffffff;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff, 0 0 25px #00ffff;
+        }
+
+        /* Label Styling */
         label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            color: #00ffff;
+            font-weight: 600;
+            text-align: left;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
         }
+
+        /* Input and Select Fields */
         input[type="number"], select {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
             box-sizing: border-box;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 2px solid #ff00ff;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1.1em;
+            outline: none;
+            transition: all 0.3s ease-in-out;
         }
+
+        input[type="number"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        /* Calculate Button */
         button {
             width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
             color: white;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 1.3em;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease-in-out;
+            position: relative;
+            overflow: hidden;
         }
+
         button:hover {
-            background-color: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.8), 0 0 25px rgba(0, 255, 255, 0.8);
         }
+
+        /* Result Display Area */
         .result {
-            margin-top: 20px;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 5px solid #00ffff;
+            border-radius: 0 8px 8px 0;
+            min-height: 60px;
+            text-align: left;
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #f0f0f0;
         }
+
     </style>
 </head>
 <body>
@@ -44,7 +127,7 @@
         <h2>比例計算器</h2>
         <label for="numValues">選擇計算值的數量:</label>
         <select id="numValues" onchange="generateInputs()">
-            <option value="0">請選擇</option>
+            <option value="0">請選擇...</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
@@ -71,7 +154,7 @@
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.id = `value${i}`;
-                input.step = '0.0001';
+                input.step = 'any'; // Allows for more flexible decimal input
                 input.placeholder = `輸入第 ${i} 個值`;
 
                 inputContainer.appendChild(label);
@@ -81,32 +164,43 @@
 
         function calculateRatio() {
             const numValues = parseInt(document.getElementById('numValues').value);
+            const resultDiv = document.getElementById('result');
+
             if (numValues === 0) {
-                document.getElementById('result').innerHTML = "請先選擇計算值的數量。";
+                resultDiv.innerHTML = "請先選擇計算值的數量。";
                 return;
             }
 
             let total = 0;
             let values = [];
+            let hasInput = false;
 
             for (let i = 1; i <= numValues; i++) {
-                const value = parseFloat(document.getElementById(`value${i}`).value) || 0;
-                values.push(value);
-                total += value;
+                const inputElement = document.getElementById(`value${i}`);
+                if (!inputElement) continue; // Safety check
+                
+                const value = parseFloat(inputElement.value);
+                if (!isNaN(value)) {
+                    values.push(value);
+                    total += value;
+                    hasInput = true;
+                } else {
+                    values.push(0); // Push 0 for empty/invalid inputs
+                }
             }
 
-            if (total === 0) {
-                document.getElementById('result').innerHTML = "請至少輸入一個有效的數字。";
+            if (!hasInput || total === 0) {
+                resultDiv.innerHTML = "請至少輸入一個大於零的有效數字。";
                 return;
             }
 
             let resultHTML = '';
             values.forEach((value, index) => {
-                const ratio = ((value / total) * 100).toFixed(1);
-                resultHTML += `值 ${index + 1} 的比例: ${ratio}%<br>`;
+                const ratio = ((value / total) * 100).toFixed(2);
+                resultHTML += `值 ${index + 1} 的比例: <b>${ratio}%</b><br>`;
             });
 
-            document.getElementById('result').innerHTML = resultHTML;
+            resultDiv.innerHTML = resultHTML;
         }
     </script>
 </body>

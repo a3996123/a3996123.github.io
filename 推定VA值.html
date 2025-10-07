@@ -1,48 +1,183 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>推定VA值計算器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: #0f0c29;
+            background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* 讓容器在垂直方向置中 */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Main Calculator Container */
+        .container {
+            width: 400px;
+            max-width: 100%;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.6);
+            text-align: center;
+        }
+
+        /* Title Styling */
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ffffff;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #00ffff, 0 0 20px #00ffff, 0 0 25px #00ffff;
+        }
+
+        /* Label and Input Wrapper */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        /* Label Styling */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ffff;
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
+        }
+
+        /* Input Fields */
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 2px solid #ff00ff;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1.1em;
+            outline: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        input[type="number"]:focus {
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+        
+        /* Calculate Button */
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.3em;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease-in-out;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.8), 0 0 25px rgba(0, 255, 255, 0.8);
+        }
+
+        /* Result Display Area */
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 5px solid #00ffff;
+            border-radius: 0 8px 8px 0;
+            min-height: 2.5em; /* 避免計算前後高度變化 */
+            line-height: 2.5em;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #f0f0f0;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>推定VA值計算器</h1>
+
+        <div class="input-group">
+            <label for="num1">Peak 1020 高度:</label>
+            <input type="number" id="num1" name="num1">
+        </div>
+
+        <div class="input-group">
+            <label for="num2">Peak 1240 高度:</label>
+            <input type="number" id="num2" name="num2">
+        </div>
+
+        <div class="input-group">
+            <label for="num3">Peak 1735 高度:</label>
+            <input type="number" id="num3" name="num3">
+        </div>
+
+        <button onclick="calculate()">計算</button>
+
+        <p id="result">推定VA值: </p>
+    </div>
+
     <script>
         function calculate() {
-            // 獲取輸入的數值
-            let num1 = parseFloat(document.getElementById("num1").value);
-            let num2 = parseFloat(document.getElementById("num2").value);
-            let num3 = parseFloat(document.getElementById("num3").value);
+            // 獲取輸入的數值，如果為空或無效，則視為 0
+            let num1 = parseFloat(document.getElementById("num1").value) || 0;
+            let num2 = parseFloat(document.getElementById("num2").value) || 0;
+            let num3 = parseFloat(document.getElementById("num3").value) || 0;
 
             // 合計數值
             let sum = num1 + num2 + num3;
 
             // 除以指定的數字並將結果四捨五入為整數
-            let result = Math.round(sum / 0.255415358451073);
+            const divisor = 0.255415358451073;
+            let result = Math.round(sum / divisor);
 
             // 顯示結果
-            document.getElementById("result").innerText = "推定VA值: " + result;
+            document.getElementById("result").innerHTML = "推定VA值: <b>" + result + "</b>";
         }
 
         function handleKeyDown(event) {
+            // 當在任一輸入框按下 Enter 鍵時，觸發計算
             if (event.key === "Enter") {
                 calculate();
             }
         }
 
+        // 頁面載入後，為三個輸入框都綁定事件監聽
         window.onload = function() {
             document.getElementById("num1").addEventListener("keydown", handleKeyDown);
             document.getElementById("num2").addEventListener("keydown", handleKeyDown);
             document.getElementById("num3").addEventListener("keydown", handleKeyDown);
         }
     </script>
-</head>
-<body>
-    <h1>推定VA值計算器</h1>
-    <label for="num1">Peak 1020 高度:</label>
-    <input type="number" id="num1" name="num1"><br><br>
-    <label for="num2">Peak 1240 高度:</label>
-    <input type="number" id="num2" name="num2"><br><br>
-    <label for="num3">Peak 1735 高度:</label>
-    <input type="number" id="num3" name="num3"><br><br>
-    <button onclick="calculate()">計算</button>
-    <p id="result">推定VA值: </p>
+
 </body>
 </html>
