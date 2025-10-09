@@ -6,6 +6,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
   <style>
     :root {
       --bg-color: #1d1e22;
@@ -19,150 +20,27 @@
       --high-bg: rgba(29, 201, 141, 0.2);
       --high-text: #59f9c7;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
-      padding: 2em;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-    
-    .container {
-        width: 100%;
-        max-width: 95vw; /* 【修改】增加最大寬度，讓表格在寬螢幕下有更多空間 */
-    }
-
-    .controls-panel {
-      background: var(--surface-color);
-      padding: 2em;
-      border-radius: 12px;
-      margin-bottom: 2em;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      border: 1px solid var(--border-color);
-      text-align: center;
-    }
-    
-    h2 {
-      font-size: 2.5em;
-      font-weight: 600;
-      color: #fff;
-      margin-bottom: 1em;
-      text-shadow: 0 0 10px rgba(74, 142, 255, 0.5);
-    }
-
-    .control-group {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 1.5em;
-    }
-
-    select, button, label {
-      font-size: 1em;
-      font-family: 'Poppins', sans-serif;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-color);
-      color: var(--text-color);
-      padding: 0.8em 1.2em;
-      transition: all 0.3s ease;
-    }
-
-    select:focus, input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 10px rgba(74, 142, 255, 0.5);
-    }
-    
-    #excelFile {
-      display: none;
-    }
-    .file-upload-label {
-      cursor: pointer;
-    }
-    .file-upload-label:hover {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-    
-    button {
-      background: var(--primary-color);
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    button:hover {
-      background: var(--primary-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4);
-    }
-    
-    #output {
-      background: var(--surface-color);
-      padding: 2em;
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      border: 1px solid var(--border-color);
-      /* 【修改】移除 overflow-x: auto; 以避免出現滾動條 */
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 0.85em; /* 【修改】微調字體大小 */
-      table-layout: fixed; /* 【新增】讓欄寬更平均分配 */
-      word-break: break-all; /* 【新增】強制長單字或數字換行 */
-    }
-
-    th {
-      background: var(--primary-color);
-      color: white;
-      padding: 0.8em 0.5em; /* 【修改】減少左右內距 */
-      font-weight: 600;
-    }
-    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: var(--text-color); padding: 2em; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .container { width: 100%; max-width: 95vw; }
+    .controls-panel { background: var(--surface-color); padding: 2em; border-radius: 12px; margin-bottom: 2em; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); text-align: center; }
+    h2 { font-size: 2.5em; font-weight: 600; color: #fff; margin-bottom: 1em; text-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
+    .control-group { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5em; }
+    select, button, label { font-size: 1em; font-family: 'Poppins', sans-serif; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-color); padding: 0.8em 1.2em; transition: all 0.3s ease; }
+    select:focus, input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 10px rgba(74, 142, 255, 0.5); }
+    button { background: var(--primary-color); color: white; border: none; cursor: pointer; font-weight: 500; }
+    button:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(74, 142, 255, 0.4); }
+    #output { background: var(--surface-color); padding: 2em; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
+    table { border-collapse: collapse; width: 100%; font-size: 0.85em; table-layout: fixed; word-break: break-all; }
+    th { background: var(--primary-color); color: white; padding: 0.8em 0.5em; font-weight: 600; }
     th:first-child { border-top-left-radius: 8px; }
     th:last-child { border-top-right-radius: 8px; }
-
-    td {
-      border-bottom: 1px solid var(--border-color);
-      padding: 0.7em 0.5em; /* 【修改】減少上下左右內距 */
-      text-align: center;
-      transition: background-color 0.3s ease;
-    }
-
-    tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.05);
-    }
-    
-    tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    .low {
-      background-color: var(--low-bg);
-      color: var(--low-text);
-      font-weight: 600;
-    }
-
-    .high {
-      background-color: var(--high-bg);
-      color: var(--high-text);
-      font-weight: 600;
-    }
+    td { border-bottom: 1px solid var(--border-color); padding: 0.7em 0.5em; text-align: center; transition: background-color 0.3s ease; }
+    tbody tr:hover { background-color: rgba(255, 255, 255, 0.05); }
+    tbody tr:last-child td { border-bottom: none; }
+    .low { background-color: var(--low-bg); color: var(--low-text); font-weight: 600; }
+    .high { background-color: var(--high-bg); color: var(--high-text); font-weight: 600; }
+    #loadingStatus { font-weight: 500; color: var(--primary-hover); }
   </style>
 </head>
 <body>
@@ -171,20 +49,19 @@
     <div class="controls-panel">
         <h2>Excel QC Comparator ✨</h2>
         <div class="control-group">
-            <label for="excelFile" class="file-upload-label">選擇 Excel 檔案</label>
-            <input type="file" id="excelFile" accept=".xlsx" />
-            
             <label>
               選擇分頁：
-              <select id="sheetSelect"></select>
+              <select id="sheetSelect"><option>讀取中...</option></select>
             </label>
             
             <label>
-              選擇製造日期（可選）：
+              選擇製造日期：
               <select id="dateSelect"><option value="">全部</option></select>
             </label>
             
             <button onclick="compareData()">🚀 執行比對</button>
+            
+            <div id="loadingStatus"></div>
         </div>
     </div>
     
@@ -193,115 +70,162 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    // JavaScript 功能完全不變
     let workbook, refSheetMap = new Map();
+    let sheetDataCache = {};
+    let headersCache = {};
 
-    document.getElementById('excelFile').addEventListener('change', (e) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = new Uint8Array(e.target.result);
-        workbook = XLSX.read(data, { type: 'array' });
+    window.onload = function() {
+        const excelFilePath = 'data/成品品質檢驗表2025.xlsx'; 
+        const loadingStatus = document.getElementById('loadingStatus');
+        
+        loadingStatus.textContent = '正在讀取 Excel 檔案...';
 
-        const refSheet = XLSX.utils.sheet_to_json(workbook.Sheets['總表'], { header: 1 });
-        refSheetMap.clear();
-        for (let i = 1; i < refSheet.length; i++) {
-          const row = refSheet[i];
-          if (!row[1]) continue;
-          refSheetMap.set(String(row[1]), row);
-        }
+        fetch(excelFilePath)
+            .then(response => {
+                if (!response.ok) throw new Error('無法載入 Excel 檔案');
+                return response.arrayBuffer();
+            })
+            .then(data => {
+                const dataArray = new Uint8Array(data);
+                workbook = XLSX.read(dataArray, { type: 'array' });
+                
+                const refSheet = XLSX.utils.sheet_to_json(workbook.Sheets['總表'], { header: 1 });
+                refSheetMap.clear();
+                for (let i = 1; i < refSheet.length; i++) {
+                    const row = refSheet[i];
+                    if (!row[1]) continue;
+                    refSheetMap.set(String(row[1]), row);
+                }
 
-        const sheetSelect = document.getElementById('sheetSelect');
-        sheetSelect.innerHTML = '<option value="">請選擇</option>';
-        workbook.SheetNames.forEach(name => {
-          if (name !== '總表') {
-            const opt = document.createElement('option');
-            opt.value = name;
-            opt.textContent = name;
-            sheetSelect.appendChild(opt);
-          }
-        });
-
-        document.getElementById('dateSelect').innerHTML = '<option value="">全部</option>';
-        document.getElementById('output').innerHTML = '';
-      };
-      reader.readAsArrayBuffer(e.target.files[0]);
-    });
+                const sheetSelect = document.getElementById('sheetSelect');
+                sheetSelect.innerHTML = '<option value="">請選擇</option>';
+                workbook.SheetNames.forEach(name => {
+                    if (name !== '總表') {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        sheetSelect.appendChild(opt);
+                    }
+                });
+                
+                loadingStatus.textContent = 'Excel 讀取成功！';
+            })
+            .catch(error => {
+                console.error(error);
+                loadingStatus.textContent = `錯誤：${error.message}`;
+                loadingStatus.style.color = 'var(--low-text)';
+            });
+    };
 
     document.getElementById('sheetSelect').addEventListener('change', () => {
       const sheetName = document.getElementById('sheetSelect').value;
       if (!sheetName || !workbook) return;
-      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+
+      if (!sheetDataCache[sheetName]) {
+          const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+          headersCache[sheetName] = sheet.length > 0 ? sheet[0] : [];
+          sheetDataCache[sheetName] = sheet.slice(1);
+      }
+      
+      const currentSheetData = sheetDataCache[sheetName];
+      const headers = headersCache[sheetName];
+      const dateColumnIndex = 2; 
+
       const dateSet = new Set();
-      for (let i = 1; i < sheet.length; i++) {
-        const d = sheet[i][2];
+      for (let i = 0; i < currentSheetData.length; i++) {
+        const d = currentSheetData[i][dateColumnIndex];
         if (d) dateSet.add(d);
       }
+      
       const dateSelect = document.getElementById('dateSelect');
       dateSelect.innerHTML = '<option value="">全部</option>';
-      [...dateSet].forEach(date => {
+      [...dateSet].sort().reverse().forEach(date => {
         const opt = document.createElement('option');
         opt.value = date;
         opt.textContent = date;
         dateSelect.appendChild(opt);
       });
+      processAndRender(currentSheetData, headers);
+    });
+    
+    document.getElementById('dateSelect').addEventListener('change', () => {
+        compareData();
     });
 
     function compareData() {
       const sheetName = document.getElementById('sheetSelect').value;
       const dateFilter = document.getElementById('dateSelect').value;
-      if (!sheetName || !workbook) return;
-      const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-      const body = [];
+      if (!sheetName || !sheetDataCache[sheetName]) return;
 
-      for (let i = 1; i < sheet.length; i++) {
-        const row = sheet[i];
-        if (!row.length || (dateFilter && row[2] !== dateFilter)) continue;
-        const item = [...row];
-        const code = (item[0] || '').replace(/-M$/, '');
-        const refRow = refSheetMap.get(code);
-        const colorMark = Array(21).fill('');
+      const currentSheetData = sheetDataCache[sheetName];
+      const headers = headersCache[sheetName];
+      const dateColumnIndex = 2;
+      
+      const filteredData = currentSheetData.filter(row => {
+          if (!row.length) return false;
+          return !dateFilter || row[dateColumnIndex] == dateFilter;
+      });
 
-        if (refRow) {
-          [[5, 4, 5], [8, 6, 7], [10, 9,10], [11,11,12]].forEach(([col, low, high]) => {
-            const val = parseFloat(item[col]);
-            const min = parseFloat(refRow[low]);
-            const max = parseFloat(refRow[high]);
-            if (!isNaN(val)) {
-              if (!isNaN(min) && val < min) colorMark[col] = 'low';
-              else if (!isNaN(max) && val > max) colorMark[col] = 'high';
+      processAndRender(filteredData, headers);
+    }
+    
+    function processAndRender(dataRows, headers) {
+        const body = [];
+        for (let i = 0; i < dataRows.length; i++) {
+            const row = dataRows[i];
+            const item = [...row];
+            const code = (item[0] || '').replace(/-M$/, '');
+            const refRow = refSheetMap.get(code);
+            const colorMark = Array(21).fill('');
+
+            if (refRow) {
+                // ***** 這裡是修改後的核心邏輯 *****
+                [[5, 4, 5], [8, 6, 7], [9, 8, 9], [10, 10, 11], [11, 12, 13]].forEach(([col, low, high]) => {
+                    const val = parseFloat(item[col]);
+                    const min = parseFloat(refRow[low]);
+                    const max = parseFloat(refRow[high]);
+                    if (!isNaN(val)) {
+                        if (!isNaN(min) && val < min) colorMark[col] = 'low';
+                        else if (!isNaN(max) && val > max) colorMark[col] = 'high';
+                    }
+                });
             }
-          });
+            body.push({ row: item, mark: colorMark });
         }
-        body.push({ row: item, mark: colorMark });
-      }
+        renderTable(headers, body);
+    }
 
-      const output = document.getElementById('output');
-      output.innerHTML = '';
-      const table = document.createElement('table');
-      const header = document.createElement('tr');
-      const headers = [
-        '產品編號','桶別','製造日期','機台','班別',
-        'MI(2.16kg)', 'MI(5kg)', 'MI(21.6kg)','耐衝擊 kg-cm','耐衝擊 kg-cm/cm^2','硬度','密度','縮水',
-        '白點','顆粒','色澤','L值','A值','B值','等級區分','備註'
-      ];
-      headers.forEach(title => {
-        const th = document.createElement('th');
-        th.textContent = title;
-        header.appendChild(th);
-      });
-      table.appendChild(header);
+    function renderTable(headers, body) {
+        const output = document.getElementById('output');
+        output.innerHTML = '';
 
-      body.forEach(({ row, mark }) => {
-        const tr = document.createElement('tr');
-        for (let i = 0; i < 21; i++) {
-          const td = document.createElement('td');
-          td.textContent = row[i] ?? '';
-          if (mark[i]) td.classList.add(mark[i]);
-          tr.appendChild(td);
+        if (!headers || headers.length === 0) return;
+
+        if (body.length === 0) {
+            output.innerHTML = '<p style="text-align:center; padding: 2em;">在指定條件下沒有找到資料。</p>';
+            return;
         }
-        table.appendChild(tr);
-      });
-      output.appendChild(table);
+
+        const table = document.createElement('table');
+        const header = document.createElement('tr');
+        headers.forEach(title => {
+            const th = document.createElement('th');
+            th.textContent = title;
+            header.appendChild(th);
+        });
+        table.appendChild(header);
+
+        body.forEach(({ row, mark }) => {
+            const tr = document.createElement('tr');
+            for (let i = 0; i < headers.length; i++) {
+                const td = document.createElement('td');
+                td.textContent = row[i] ?? '';
+                if (mark[i]) td.classList.add(mark[i]);
+                tr.appendChild(td);
+            }
+            table.appendChild(tr);
+        });
+        output.appendChild(table);
     }
   </script>
 </body>
