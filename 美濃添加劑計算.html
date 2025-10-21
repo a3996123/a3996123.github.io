@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美濃添加劑計算</title>
+    <style>
+        /* * 樣式來自您提供的 index.html 檔案 
+         */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            /* 1. 套用漸層背景 */
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            box-sizing: border-box;
+            color: #333; /* 預設文字顏色 */
+        }
+
+        /* 2. 玻璃容器樣式 */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px; /* 圓角 */
+            padding: 25px; /* 增加一點內邊距 */
+        }
+
+        /* 3. 限制寬度的容器 */
+        .container {
+            max-width: 600px; /* 計算機不需要太寬 */
+            margin: auto;
+        }
+
+        /* 4. 標題樣式 */
+        h1, h2 {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        h2 {
+            margin-top: 30px;
+            font-size: 1.5em;
+        }
+
+        /* 5. 標籤樣式 (Label) */
+        label {
+            color: #333;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        /* 6. 輸入框樣式 */
+        input {
+            margin-bottom: 10px;
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #333;
+            font-size: 16px;
+        }
+        input::placeholder {
+            color: #555;
+        }
+
+        /* * 計算結果區域的樣式 
+         * (套用類似 material-list a 的樣式)
+         */
+        #results {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        #results li {
+            background: rgba(255, 255, 255, 0.4); /* 半透明背景 */
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px; /* 圓角 */
+            font-size: 1.1em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255, 255, 255, 0.2); /* 輕微邊框 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 輕微陰影 */
+        }
+
+        /* 結果中的文字標籤 */
+        #results .label {
+            font-weight: 600; /* 參考 index.html 的 .material-list a */
+            color: #333;
+            margin-right: 10px;
+        }
+        
+        /* 結果中的數值 (g 和 kg) */
+        #results .value-group {
+            text-align: right;
+        }
+        #results .value-g {
+            font-family: "Courier New", Courier, monospace;
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #d9534f; /* 保留紅色以示突出 */
+            display: block;
+        }
+        #results .value-kg {
+            font-size: 0.95em;
+            color: #555; /* 較深的灰色 */
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container glass-container">
+        <h1>美濃添加劑計算</h1>
+        
+        <div class="input-group">
+            <label for="kgInput">請輸入總數量 (kg):</label>
+            <input type="number" id="kgInput" oninput="calculate()" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <h2>計算結果:</h2>
+        <ul id="results">
+            <li>
+                <span class="label">1010 (U-030-01) [0.05%]:</span>
+                <div class="value-group">
+                    <span id="result1010_g" class="value-g">0.00 g</span>
+                    <span id="result1010_kg" class="value-kg">(0.000 kg)</span>
+                </div>
+            </li>
+            <li>
+                <span class="label">168 (U-030-02) [0.05%]:</span>
+                <div class="value-group">
+                    <span id="result168_g" class="value-g">0.00 g</span>
+                    <span id="result168_kg" class="value-kg">(0.000 kg)</span>
+                </div>
+            </li>
+            <li>
+                <span class="label">UV770 (U-110-01) [0.25%]:</span>
+                <div class="value-group">
+                    <span id="resultUV770_g" class="value-g">0.00 g</span>
+                    <span id="resultUV770_kg" class="value-kg">(0.000 kg)</span>
+                </div>
+            </li>
+            <li>
+                <span class="label">201 (U-990-11) [0.15%]:</span>
+                <div class="value-group">
+                    <span id="result201_g" class="value-g">0.00 g</span>
+                    <span id="result201_kg" class="value-kg">(0.000 kg)</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        function calculate() {
+            const inputKg = parseFloat(document.getElementById('kgInput').value);
+
+            const percent1010 = 0.0005; // 0.05%
+            const percent168 = 0.0005; // 0.05%
+            const percentUV770 = 0.0025; // 0.25%
+            const percent201 = 0.0015; // 0.15%
+
+            if (isNaN(inputKg) || inputKg < 0) {
+                document.getElementById('result1010_g').innerText = '0.00 g';
+                document.getElementById('result1010_kg').innerText = '(0.000 kg)';
+                document.getElementById('result168_g').innerText = '0.00 g';
+                document.getElementById('result168_kg').innerText = '(0.000 kg)';
+                document.getElementById('resultUV770_g').innerText = '0.00 g';
+                document.getElementById('resultUV770_kg').innerText = '(0.000 kg)';
+                document.getElementById('result201_g').innerText = '0.00 g';
+                document.getElementById('result201_kg').innerText = '(0.000 kg)';
+                return;
+            }
+
+            const val1010_kg = inputKg * percent1010;
+            const val168_kg = inputKg * percent168;
+            const valUV770_kg = inputKg * percentUV770;
+            const val201_kg = inputKg * percent201;
+
+            const val1010_g = val1010_kg * 1000;
+            const val168_g = val168_kg * 1000;
+            const valUV770_g = valUV770_kg * 1000;
+            const val201_g = val201_kg * 1000;
+
+            document.getElementById('result1010_g').innerText = val1010_g.toFixed(2) + ' g';
+            document.getElementById('result1010_kg').innerText = '(' + val1010_kg.toFixed(3) + ' kg)';
+            
+            document.getElementById('result168_g').innerText = val168_g.toFixed(2) + ' g';
+            document.getElementById('result168_kg').innerText = '(' + val168_kg.toFixed(3) + ' kg)';
+
+            document.getElementById('resultUV770_g').innerText = valUV770_g.toFixed(2) + ' g';
+            document.getElementById('resultUV770_kg').innerText = '(' + valUV770_kg.toFixed(3) + ' kg)';
+
+            document.getElementById('result201_g').innerText = val201_g.toFixed(2) + ' g';
+            document.getElementById('result201_kg').innerText = '(' + val201_kg.toFixed(3) + ' kg)';
+        }
+        
+        window.onload = calculate;
+    </script>
+
+</body>
+</html>
