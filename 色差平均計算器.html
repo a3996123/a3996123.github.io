@@ -5,31 +5,119 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Lab 四組平均計算器</title>
   <style>
-    :root{--bg:#0f1724;--card:#0b1320;--accent:#6ee7b7;--muted:#94a3b8;--glass: rgba(255,255,255,0.04)}
-    *{box-sizing:border-box;font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Helvetica Neue', Arial}
-    body{margin:0;min-height:100vh;background:linear-gradient(135deg,#071029 0%,#09203f 50%,#081521 100%);color:#e6eef6;display:flex;align-items:center;justify-content:center;padding:32px}
-    .wrap{width:100%;max-width:980px}
-    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-    h1{font-size:20px;margin:0}
-    p.lead{margin:0;color:var(--muted);font-size:13px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.04)}
-    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    .group{background:var(--glass);padding:12px;border-radius:10px}
-    .group h3{margin:0 0 8px 0;font-size:13px}
-    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-    input[type=number]{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;font-size:14px}
-    .actions{display:flex;gap:10px;align-items:center;margin-top:14px}
-    button{background:var(--accent);border:none;padding:10px 14px;border-radius:10px;color:#042018;font-weight:600;cursor:pointer}
-    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);font-weight:600}
-    .result{display:flex;gap:14px;align-items:center;margin-top:16px}
-    .result .box{background:rgba(255,255,255,0.03);padding:12px;border-radius:10px;min-width:120px}
-    .swatch{width:84px;height:84px;border-radius:8px;border:1px solid rgba(0,0,0,0.25);box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
-    .footer{margin-top:12px;color:var(--muted);font-size:12px}
-    @media (max-width:720px){.grid{grid-template-columns:repeat(2,1fr)}header{flex-direction:column;align-items:flex-start} .result{flex-direction:column;align-items:flex-start}}
+    /* 1. Global Styles */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        min-height: 100vh;
+        box-sizing: border-box;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* 2. Glass Container */
+    .container {
+        width: 100%;
+        max-width: 980px; /* Specific width for this layout */
+        margin: auto;
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 16px;
+        padding: 30px;
+        box-sizing: border-box;
+    }
+
+    /* 3. Headers */
+    header { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+    h1, h2, h3 { color: #333; font-weight: 600; margin-top: 0; }
+    h1 { font-size: 1.8em; margin: 0; }
+    h3 { font-size: 1.1em; margin-bottom: 10px; color: #222; }
+    p.lead { margin: 0; color: #444; font-size: 1em; }
+
+    /* 4. Form Element Styling */
+    label { display: block; margin-bottom: 6px; font-weight: 500; color: #555; }
+    input[type="number"] {
+        width: 100%; padding: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 8px; font-size: 1em; box-sizing: border-box; color: #333;
+        transition: all 0.2s ease;
+    }
+    input[type="number"]:focus {
+        outline: none; border-color: rgba(0, 86, 179, 0.5);
+        background: #fff; box-shadow: 0 0 8px rgba(31, 38, 135, 0.1);
+    }
+    input[type=number] { -moz-appearance: textfield; }
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    button {
+        padding: 12px 18px; font-size: 1.1em; font-weight: 600;
+        color: #fff; background-color: #0056b3;
+        border: none; border-radius: 8px; cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+    button:hover { background-color: #004494; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    button.ghost {
+        background: rgba(255, 255, 255, 0.4); color: #333;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    button.ghost:hover { background: rgba(255, 255, 255, 0.7); }
+
+    /* 5. Layout & Result Styles */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+    .group {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .actions { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+    .result { display: flex; gap: 14px; margin-top: 25px; flex-wrap: wrap; }
+    .result .box {
+        background: rgba(255, 255, 255, 0.3);
+        padding: 15px;
+        border-radius: 10px;
+        flex-grow: 1; min-width: 150px;
+    }
+    .swatch {
+        width: 84px; height: 84px; border-radius: 8px;
+        border: 1px solid rgba(0,0,0,0.1);
+        margin: 0 auto;
+    }
+    .footer { margin-top: 20px; color: #555; font-size: 0.9em; text-align: center; }
+
+    /* 6. Responsive */
+    @media (max-width: 900px) {
+        .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px){
+        body { padding: 10px; align-items: flex-start; }
+        .container { padding: 20px; }
+        header{ flex-direction:column; align-items:flex-start; } 
+        .result{ flex-direction:column; align-items:stretch; }
+    }
+    @media (max-width: 500px) {
+        .grid { grid-template-columns: 1fr; }
+        .actions { flex-direction: column; }
+        button { width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="container">
     <header>
       <div>
         <h1>Lab 四組平均計算器</h1>
@@ -37,78 +125,76 @@
       </div>
     </header>
 
-    <div class="card">
-      <form id="labForm" onsubmit="event.preventDefault();calcAvg();">
-        <div class="grid">
-          <div class="group">
-            <h3>樣本 1</h3>
-            <label>L</label>
-            <input type="number" step="0.01" name="L1" value="50.00">
-            <label>a</label>
-            <input type="number" step="0.01" name="a1" value="0.00">
-            <label>b</label>
-            <input type="number" step="0.01" name="b1" value="0.00">
-          </div>
-
-          <div class="group">
-            <h3>樣本 2</h3>
-            <label>L</label>
-            <input type="number" step="0.01" name="L2" value="50.00">
-            <label>a</label>
-            <input type="number" step="0.01" name="a2" value="0.00">
-            <label>b</label>
-            <input type="number" step="0.01" name="b2" value="0.00">
-          </div>
-
-          <div class="group">
-            <h3>樣本 3</h3>
-            <label>L</label>
-            <input type="number" step="0.01" name="L3" value="50.00">
-            <label>a</label>
-            <input type="number" step="0.01" name="a3" value="0.00">
-            <label>b</label>
-            <input type="number" step="0.01" name="b3" value="0.00">
-          </div>
-
-          <div class="group">
-            <h3>樣本 4</h3>
-            <label>L</label>
-            <input type="number" step="0.01" name="L4" value="50.00">
-            <label>a</label>
-            <input type="number" step="0.01" name="a4" value="0.00">
-            <label>b</label>
-            <input type="number" step="0.01" name="b4" value="0.00">
-          </div>
+    <form id="labForm" onsubmit="event.preventDefault();calcAvg();">
+      <div class="grid">
+        <div class="group">
+          <h3>樣本 1</h3>
+          <label>L</label>
+          <input type="number" step="0.01" name="L1" value="50.00">
+          <label>a</label>
+          <input type="number" step="0.01" name="a1" value="0.00">
+          <label>b</label>
+          <input type="number" step="0.01" name="b1" value="0.00">
         </div>
 
-        <div class="actions">
-          <button type="button" onclick="calcAvg()">計算平均</button>
-          <button type="button" class="ghost" onclick="resetForm()">重置</button>
-          <button type="button" class="ghost" onclick="exportCSV()">匯出 CSV</button>
+        <div class="group">
+          <h3>樣本 2</h3>
+          <label>L</label>
+          <input type="number" step="0.01" name="L2" value="50.00">
+          <label>a</label>
+          <input type="number" step="0.01" name="a2" value="0.00">
+          <label>b</label>
+          <input type="number" step="0.01" name="b2" value="0.00">
         </div>
 
-        <div class="result" id="resultArea" style="display:none">
-          <div class="box">
-            <div style="font-size:12px;color:var(--muted)">平均值</div>
-            <div id="avgL" style="font-size:18px;font-weight:700">L: -</div>
-            <div id="avga" style="font-size:18px;font-weight:700">a: -</div>
-            <div id="avgb" style="font-size:18px;font-weight:700">b: -</div>
-          </div>
-
-          <div class="box">
-            <div style="font-size:12px;color:var(--muted)">色差參考 (ΔE) - 快速參考</div>
-            <div id="deltaText" style="font-size:14px;font-weight:600">—</div>
-          </div>
-
-          <div class="box" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">平均顏色預覽</div>
-            <div class="swatch" id="swatch"></div>
-          </div>
+        <div class="group">
+          <h3>樣本 3</h3>
+          <label>L</label>
+          <input type="number" step="0.01" name="L3" value="50.00">
+          <label>a</label>
+          <input type="number" step="0.01" name="a3" value="0.00">
+          <label>b</label>
+          <input type="number" step="0.01" name="b3" value="0.00">
         </div>
 
-        <div class="footer">提示：欄位支援小數（步進 0.01）。若需更多樣本或匯出格式請告訴我。</div>
-      </form>
-    </div>
+        <div class="group">
+          <h3>樣本 4</h3>
+          <label>L</label>
+          <input type="number" step="0.01" name="L4" value="50.00">
+          <label>a</label>
+          <input type="number" step="0.01" name="a4" value="0.00">
+          <label>b</label>
+          <input type="number" step="0.01" name="b4" value="0.00">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" onclick="calcAvg()">計算平均</button>
+        <button type="button" class="ghost" onclick="resetForm()">重置</button>
+        <button type="button" class="ghost" onclick="exportCSV()">匯出 CSV</button>
+      </div>
+
+      <div class="result" id="resultArea" style="display:none">
+        <div class="box">
+          <div style="font-size:12px;color:var(--muted)">平均值</div>
+          <div id="avgL" style="font-size:18px;font-weight:700">L: -</div>
+          <div id="avga" style="font-size:18px;font-weight:700">a: -</div>
+          <div id="avgb" style="font-size:18px;font-weight:700">b: -</div>
+        </div>
+
+        <div class="box">
+          <div style="font-size:12px;color:var(--muted)">色差參考 (ΔE) - 快速參考</div>
+          <div id="deltaText" style="font-size:14px;font-weight:600">—</div>
+        </div>
+
+        <div class="box" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">平均顏色預覽</div>
+          <div class="swatch" id="swatch"></div>
+        </div>
+      </div>
+
+      <div class="footer">提示：欄位支援小數（步進 0.01）。若需更多樣本或匯出格式請告訴我。</div>
+    </form>
   </div>
 
   <script>
@@ -132,9 +218,9 @@
     function xyzToRgb(x,y,z){
       // X Y Z are in [0..100]
       x/=100; y/=100; z/=100;
-      var r = x *  3.2406 + y * -1.5372 + z * -0.4986;
-      var g = x * -0.9689 + y *  1.8758 + z *  0.0415;
-      var b = x *  0.0557 + y * -0.2040 + z *  1.0570;
+      var r = x * 3.2406 + y * -1.5372 + z * -0.4986;
+      var g = x * -0.9689 + y * 1.8758 + z * 0.0415;
+      var b = x * 0.0557 + y * -0.2040 + z * 1.0570;
       function comp(c){
         return c<=0.0031308 ? 12.92*c : 1.055*Math.pow(c,1/2.4)-0.055;
       }
