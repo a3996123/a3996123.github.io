@@ -4,8 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的小程式入口</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* 1. 全局樣式 (來自 美濃添加劑計算.html) */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        /* 2. 玻璃容器樣式 (套用到 .container) */
+        .container {
+            max-width: 700px; /* 稍微加寬以容納列表 */
+            margin: auto;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        /* 3. 標題樣式 (來自 美濃添加劑計算.html) */
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            color: #444;
+        }
+
+        /* 4. 分類選擇卡片樣式 (.choice-card) */
+        .choices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .choice-card {
+            background: rgba(255, 255, 255, 0.4);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .choice-card:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .choice-card i {
+            font-size: 2.2em;
+            margin-bottom: 12px;
+            color: #0056b3; /* 選擇一個搭配的顏色 */
+        }
+        
+        .choice-card h2 {
+            font-size: 1.25em;
+            color: #333;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* 5. 小程式連結列表樣式 (改編自 #results li) */
+        .applet-grid {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: 1fr; /* 預設單欄 */
+            gap: 12px;
+        }
+
+        /* 在螢幕稍寬時變為雙欄 */
+        @media (min-width: 600px) {
+            .applet-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        a.applet-card {
+            background: rgba(255, 255, 255, 0.4);
+            padding: 16px;
+            margin-bottom: 0; /* 由 grid gap 控制間距 */
+            border-radius: 8px;
+            font-size: 1.1em;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: block;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+        }
+
+        a.applet-card:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: translateX(3px); /* 輕微位移 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 6. 隱藏樣式 (來自原版 script.js) */
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -25,8 +150,7 @@
                 <h2>平時小程式</h2>
             </div>
 			<div class="choice-card" id="show-color">
-                <i class="fas fa-coffee"></i>
-                <h2>色粉小程式</h2>
+                <i class="fas fa-palette"></i> <h2>色粉小程式</h2>
             </div>
         </div>
 
@@ -46,20 +170,79 @@
         <div id="personal-applets" class="applet-grid hidden">
             <a href="外幣轉台幣.html" class="applet-card">外幣轉台幣</a>
                 
-            </div>
+        </div>
 		<div id="color-applets" class="applet-grid hidden">
             <a href="色差平均計算器.html" class="applet-card">色差平均計算器</a>
 			<a href="宏盛色差機推算.html" class="applet-card">宏盛色差機推算</a>
             <a href="色差計算機.html" class="applet-card">色差計算機</a>
 			<a href="色粉數量計算.html" class="applet-card">色粉數量計算</a>
 			<a href="修色增加4336計算.html" class="applet-card">修色增加4336計算</a>	
-            </div>	
+        </div>	
 			
-        </div>
-
     </div>
 
-    <script src="script.js"></script>
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- 新增：自動排序功能 ---
+            function sortApplets() {
+                // 選取所有的小程式列表
+                const grids = document.querySelectorAll('.applet-grid');
+                
+                grids.forEach(grid => {
+                    // 獲取該列表下的所有連結 (applet-card)
+                    // 使用 Array.from 將 NodeList 轉換為陣列才能使用 .sort()
+                    const applets = Array.from(grid.querySelectorAll('a.applet-card'));
 
+                    // 根據連結的文字內容進行排序
+                    applets.sort((a, b) => {
+                        // localeCompare 用於正確比較包含中文的字串
+                        return a.textContent.localeCompare(b.textContent);
+                    });
+
+                    // 將排序後的連結重新放回 grid 容器中
+                    // (appendChild 會自動將元素從原位置移除)
+                    applets.forEach(applet => {
+                        grid.appendChild(applet);
+                    });
+                });
+            }
+            
+            // 執行排序
+            sortApplets();
+
+            // --- 保留：原有的頁籤切換功能 ---
+            const showWork = document.getElementById('show-work');
+            const showPersonal = document.getElementById('show-personal');
+            const showColor = document.getElementById('show-color');
+
+            const workApplets = document.getElementById('work-applets');
+            const personalApplets = document.getElementById('personal-applets');
+            const colorApplets = document.getElementById('color-applets');
+
+            // 隱藏所有列表的函式
+            function hideAll() {
+                workApplets.classList.add('hidden');
+                personalApplets.classList.add('hidden');
+                colorApplets.classList.add('hidden');
+            }
+
+            // 綁定點擊事件
+            showWork.addEventListener('click', () => {
+                hideAll();
+                workApplets.classList.remove('hidden');
+            });
+
+            showPersonal.addEventListener('click', () => {
+                hideAll();
+                personalApplets.classList.remove('hidden');
+            });
+
+            showColor.addEventListener('click', () => {
+                hideAll();
+                colorApplets.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
 </html>
