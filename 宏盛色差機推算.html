@@ -4,183 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>色差計算器 (高效對比版)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #121212;
-            --table-bg-color: #1e1e1e;
-            --header-bg-color: #2a2a2a;
-            --border-color: #444;
-            --text-color: #e0e0e0;
-            --text-secondary-color: #b0b0b0;
-            --highlight-color: #00aaff;
-            --input-bg-color: #252525;
-            --row-alt-color: #242424;
-            --result-col-bg: #1a2c3a;
-            --major-separator-color: #ffffff; /* 主要分隔線顏色 */
-        }
-
+        /* 1. Global Styles */
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
             margin: 0;
             padding: 20px;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            box-sizing: border-box;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
+        /* 2. Glass Container (Overridden for width) */
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 1400px; /* Wider for the table */
+            margin: auto;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 16px;
+            padding: 30px;
+            box-sizing: border-box;
         }
 
+        /* 3. Headers */
         header h1 {
             text-align: center;
             font-weight: 500;
             margin-bottom: 30px;
-            color: var(--text-secondary-color);
+            color: #333;
+            font-size: 1.8em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 15px;
+            margin-top: 0;
         }
 
+        /* 4. Form Element Styling (in table) */
+        td input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            color: #333;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        td input[type="number"]:focus {
+            outline: none; border-color: rgba(0, 86, 179, 0.5);
+            background: #fff; box-shadow: 0 0 8px rgba(31, 38, 135, 0.1);
+        }
+        input[type=number] { -moz-appearance: textfield; }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* 5. Layout & Result Styles (Table) */
         .table-container {
             width: 100%;
             overflow-x: auto;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
         }
-
-        .table-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: var(--header-bg-color);
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background: var(--highlight-color);
-            border-radius: 4px;
-        }
-
+        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
+        .table-container::-webkit-scrollbar-thumb { background: #0056b3; border-radius: 4px; }
+        
         table {
             width: 100%;
             min-width: 800px;
             border-collapse: collapse;
             border-spacing: 0;
         }
-
         th, td {
             padding: 14px 12px;
             text-align: center;
             white-space: nowrap;
-            /* 添加右側垂直分隔線 */
-            border-right: 1px solid var(--border-color);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
-        
-        /* 移除最後一欄的右側邊線 */
-        th:last-child,
-        td:last-child {
-            border-right: none;
-        }
-
+        th:last-child, td:last-child { border-right: none; }
         thead th {
-            background-color: var(--header-bg-color);
-            color: var(--text-secondary-color);
-            font-weight: 500;
-            border-bottom: 2px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.2);
         }
+        /* Major separators */
+        thead tr:nth-child(2) th:nth-child(4), tbody tr td:nth-child(4),
+        thead tr:nth-child(2) th:nth-child(7), tbody tr td:nth-child(7),
+        thead tr:first-child th:nth-child(2), thead tr:first-child th:nth-child(3) {
+             border-right: 2px solid #333;
+        }
+        tbody tr { border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+        tbody tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.1); }
+        tbody tr:last-child { border-bottom: none; }
         
-        /* === 添加主要區塊分隔線 === */
-        /* 分隔 "宏盛" 和 "宏恩" */
-        thead tr:nth-child(2) th:nth-child(4),
-        tbody tr td:nth-child(4) {
-             border-right: 2px solid var(--major-separator-color);
-        }
-        /* 分隔 "宏恩" 和 "計算結果" */
-        thead tr:nth-child(2) th:nth-child(7),
-        tbody tr td:nth-child(7) {
-             border-right: 2px solid var(--major-separator-color);
-        }
-        /* 讓第一行標題的粗線對齊 */
-         thead tr:first-child th:nth-child(2) {
-             border-right: 2px solid var(--major-separator-color);
-         }
-         thead tr:first-child th:nth-child(3) {
-             border-right: 2px solid var(--major-separator-color);
-         }
-
-
-        tbody tr {
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        tbody tr:nth-child(even) {
-            background-color: var(--row-alt-color);
-        }
-
-        tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        td input[type="number"] {
-            width: 80px;
-            padding: 8px;
-            background-color: var(--input-bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            text-align: center;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-            -moz-appearance: textfield;
-        }
-        
-        td input[type="number"]::-webkit-outer-spin-button,
-        td input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        td input[type="number"]:focus {
-            outline: none;
-            border-color: var(--highlight-color);
-            box-shadow: 0 0 5px rgba(0, 170, 255, 0.5);
-        }
-
         .result-col {
-            background-color: var(--result-col-bg);
+            background-color: rgba(0, 68, 148, 0.1);
             font-weight: 700;
-            color: var(--highlight-color);
+            color: #0056b3;
         }
-
+        
         .averages-container {
-            background-color: var(--table-bg-color);
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             padding: 20px;
-            margin-top: 30px;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             display: flex;
             justify-content: space-around;
             align-items: center;
             flex-wrap: wrap;
         }
-
         .averages-container h2 {
-            margin: 0;
-            font-weight: 500;
-            color: var(--text-secondary-color);
-            text-align: center;
             width: 100%;
+            text-align: center;
             margin-bottom: 20px;
+            font-size: 1.3em;
+            color: #111;
+            font-weight: 600;
+            margin-top: 0;
         }
+        .avg-value { font-size: 1.8rem; font-weight: 500; color: #004494; }
+        .avg-value span { font-size: 1rem; color: #333; margin-right: 10px; }
 
-        .avg-value {
-            font-size: 1.8rem;
-            font-weight: 500;
-        }
-
-        .avg-value span {
-            font-size: 1rem;
-            color: var(--text-secondary-color);
-            margin-right: 10px;
+        /* 6. Responsive */
+        @media (max-width: 768px) {
+            body { padding: 10px; align-items: flex-start; }
+            .container { padding: 20px; }
         }
 
     </style>
