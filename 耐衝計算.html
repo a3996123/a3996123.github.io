@@ -4,187 +4,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>耐衝計算器</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* General Styling */
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            background: #0f0c29;
-            background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);
-            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
-            color: #f0f0f0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
+        /* 來自 index.html 的基礎樣式 */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
+            min-height: 100vh; 
+            box-sizing: border-box; 
+            display: flex; /* Added for centering */
+            justify-content: center; /* Added for centering */
+            align-items: center; /* Added for centering */
+        }
+        .glass-container { 
+            background: rgba(255, 255, 255, 0.25); 
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.18); 
+            border-radius: 16px; 
+            padding: 20px; 
+        }
+        .container { 
+            /* 調整 max-width 以更好地容納兩個計算器 */
+            max-width: 900px; 
+            margin: auto; 
+        }
+        
+        h2 { 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3); 
+            padding-bottom: 10px; 
+            color: #333; 
+            margin-top: 0; /* 確保 h2 頂部無多餘邊距 */
+            margin-bottom: 30px; 
+            text-align: center; /* 讓標題置中 */
+        }
+        
+        label { 
+            color: #333; 
+            font-weight: 500; 
+            display: block; 
+            margin-bottom: 8px; 
         }
 
-        /* Responsive Wrapper */
+        input[type="number"], input[type="text"] { 
+            width: 100%; 
+            padding: 12px; 
+            box-sizing: border-box; 
+            background: rgba(255, 255, 255, 0.5); 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            border-radius: 8px; 
+            color: #333; 
+            font-size: 16px; 
+        }
+        
+        input::placeholder { color: #555; }
+
+        input[readonly] {
+            background-color: rgba(255, 255, 255, 0.3); /* 輕微變暗以區分 */
+            color: #555;
+        }
+
+        button { 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            padding: 12px; 
+            font-size: 16px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%; /* 確保按鈕滿寬 */
+            margin-top: 10px; /* 與上方輸入框保持間距 */
+        }
+        
+        button:hover { 
+            background-color: #0056b3; 
+            transform: translateY(-3px); 
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); 
+        }
+
+        /* 來自 耐衝計算.html 的佈局樣式 (已整合) */
         .main-wrapper {
             display: flex;
-            flex-direction: row; /* Default: side-by-side */
+            flex-direction: row; /* 預設: 並排 */
             justify-content: center;
-            align-items: flex-start; /* Align tops */
-            gap: 40px; /* Space between calculators */
+            align-items: flex-start; /* 頂部對齊 */
+            gap: 40px; /* 計算器之間的間距 */
             width: 100%;
-            max-width: 900px; /* Max width for side-by-side layout */
         }
 
-        /* Main Calculator Container */
-        .container {
+        /* 替換原本的 .container 樣式 */
+        .calculator-box {
             width: 100%;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4), 0 0 30px rgba(0, 255, 255, 0.4);
-            flex: 1; /* Allow containers to grow equally */
+            padding: 20px;
+            /* 使用類似 searchResults 的輕微背景 */
+            background: rgba(255, 255, 255, 0.2); 
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex: 1; /* 允許容器等寬 */
         }
 
-        /* Title Styling */
-        h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: #ffffff;
-            font-size: 1.8em;
-            margin-top: 0;
-            margin-bottom: 30px;
-            text-align: center;
-            text-transform: uppercase;
-            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #00ffff;
-        }
-
-        /* Input Group Styling */
         .input-group {
             margin-bottom: 15px;
             text-align: left;
         }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #00ffff;
-            font-weight: 400;
-            font-size: 0.9em;
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
-        }
 
-        input[type="number"], input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            background-color: rgba(0, 0, 0, 0.3);
-            border: 2px solid #ff00ff;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 1em;
-            outline: none;
-            transition: all 0.3s ease-in-out;
-        }
-        
-        /* Styling for the placeholder text */
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9em;
-        }
-
-        input[type="number"]:focus {
-            border-color: #00ffff;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
-        }
-
-        input[readonly] {
-            background-color: rgba(0, 0, 0, 0.5);
-            border-color: rgba(255, 0, 255, 0.5);
-            color: #cccccc;
-        }
-        
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            background: linear-gradient(45deg, #ff00ff, #00ffff);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2em;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: all 0.3s ease-in-out;
-        }
-
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(255, 0, 255, 0.8), 0 0 25px rgba(0, 255, 255, 0.8);
-        }
-
-        /* Media Query for narrow screens */
+        /* 來自 耐衝計算.html 的響應式樣式 (已整合) */
         @media (max-width: 992px) {
             .main-wrapper {
-                flex-direction: column; /* Stack them vertically */
-                align-items: center; /* Center them */
+                flex-direction: column; /* 垂直堆疊 */
+                align-items: center; /* 置中 */
             }
-            .container {
+            .calculator-box {
                 width: 100%;
-                max-width: 420px; /* Constrain width on mobile */
+                max-width: 420px; /* 在行動裝置上限制寬度 */
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="main-wrapper">
-        <div class="container">
-            <h2>耐衝計算 I</h2>
-            <div class="input-group">
-                <label for="inputField1">輸入值：</label>
-                <input type="number" id="inputField1" onkeydown="if(event.key==='Enter') calculate()" placeholder="(輸入新耐衝kg-cm的數值)">
+    <div class="container glass-container">
+        <div class="main-wrapper">
+            
+            <div class="calculator-box">
+                <h2>耐衝計算 I</h2>
+                <div class="input-group">
+                    <label for="inputField1">輸入值：</label>
+                    <input type="number" id="inputField1" onkeydown="if(event.key==='Enter') calculate()" placeholder="(輸入新耐衝kg-cm的數值)">
+                </div>
+                <div class="input-group">
+                    <label>舊耐衝(kg-cm)：</label>
+                    <input type="text" id="result1_1" readonly>
+                </div>
+                <div class="input-group">
+                    <label>新耐衝(kg-cm/cm)：</label>
+                    <input type="text" id="result1_2" readonly>
+                </div>
+                <div class="input-group">
+                    <label>新耐衝(kg-cm/cm²)：</label>
+                    <input type="text" id="result1_3" readonly>
+                </div>
             </div>
-            <div class="input-group">
-                <label>舊耐衝(kg-cm)：</label>
-                <input type="text" id="result1_1" readonly>
-            </div>
-            <div class="input-group">
-                <label>新耐衝(kg-cm/cm)：</label>
-                <input type="text" id="result1_2" readonly>
-            </div>
-            <div class="input-group">
-                <label>新耐衝(kg-cm/cm²)：</label>
-                <input type="text" id="result1_3" readonly>
-            </div>
-        </div>
 
-        <div class="container">
-            <h2>耐衝計算 II</h2>
-            <div class="input-group">
-                <label for="inputField2">輸入值：</label>
-                <input type="number" id="inputField2" onkeydown="if(event.key==='Enter') calculate()" placeholder="(輸入舊耐衝kg-cm的數值)">
+            <div class="calculator-box">
+                <h2>耐衝計算 II</h2>
+                <div class="input-group">
+                    <label for="inputField2">輸入值：</label>
+                    <input type="number" id="inputField2" onkeydown="if(event.key==='Enter') calculate()" placeholder="(輸入舊耐衝kg-cm的數值)">
+                </div>
+                 <div class="input-group">
+                    <label for="output4">舊耐衝(kg-cm)：</label>
+                    <input type="text" id="output4" readonly>
+                </div>
+                <div class="input-group">
+                    <label for="output1">新耐衝(kg-cm)：</label>
+                    <input type="text" id="output1" readonly>
+                </div>
+                <div class="input-group">
+                    <label for="output2">新耐衝(kg-cm/cm)：</label>
+                    <input type="text" id="output2" readonly>
+                </div>
+                <div class="input-group">
+                    <label for="output3">新耐衝(kg-cm/cm²)：</label>
+                    <input type="text" id="output3" readonly>
+                </div>
+                <button onclick="calculate()">計算</button>
             </div>
-             <div class="input-group">
-                <label for="output4">舊耐衝(kg-cm)：</label>
-                <input type="text" id="output4" readonly>
-            </div>
-            <div class="input-group">
-                <label for="output1">新耐衝(kg-cm)：</label>
-                <input type="text" id="output1" readonly>
-            </div>
-            <div class="input-group">
-                <label for="output2">新耐衝(kg-cm/cm)：</label>
-                <input type="text" id="output2" readonly>
-            </div>
-            <div class="input-group">
-                <label for="output3">新耐衝(kg-cm/cm²)：</label>
-                <input type="text" id="output3" readonly>
-            </div>
-            <button onclick="calculate()">計算</button>
         </div>
     </div>
 
