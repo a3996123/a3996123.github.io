@@ -260,7 +260,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    // JavaScript 邏輯完全不變
+    // JavaScript 邏輯
     let workbook, refSheetMap = new Map();
     let sheetDataCache = {};
     let headersCache = {};
@@ -370,8 +370,45 @@
             const colorMark = Array(21).fill('');
 
             if (refRow) {
-                // ***** 這裡是修改後的核心邏輯 *****
-                [[5, 4, 5], [8, 6, 7], [9, 8, 9], [10, 10, 11], [11, 12, 13]].forEach(([col, low, high]) => {
+                // ***** 這裡是修改後的核心邏輯 (包含 5kg 判斷) *****
+
+                // --- 處理特殊規則 [5, 4, 5] (F欄) ---
+                { // 用大括號建立一個獨立的區塊
+                    let dataColIndex = 5; // 預設要比對的資料欄位是 F 欄 (索引 5)
+                    const specMinColIndex = 4; // 總表的 Min 欄位 (E 欄)
+                    const specMaxColIndex = 5; // 總表的 Max 欄位 (F 欄)
+
+                    // 取得 "總表" 規格的 "原始文字" (為了檢查 5kg)
+                    // 我們需要先轉成字串，以防儲存格是純數字
+                    const specMinString = String(refRow[specMinColIndex] || '');
+                    const specMaxString = String(refRow[specMaxColIndex] || '');
+
+                    // 你的新邏輯：檢查 Min 或 Max 欄位是否包含 (5kg)
+                    if (specMinString.includes('(5kg)') || specMaxString.includes('(5kg)')) {
+                        // 如果有，就改去比對資料的 G 欄 (索引 6)
+                        dataColIndex = 6;
+                    }
+
+                    // 取得 "資料" 的值 (可能是 F 欄或 G 欄)
+                    const val = parseFloat(item[dataColIndex]);
+                    
+                    // 取得 "規格" 的值 (parseFloat 會自動忽略文字，只取數字)
+                    const min = parseFloat(specMinString);
+                    const max = parseFloat(specMaxString);
+
+                    // 執行比對，並標記 "真正被比對" 的那一欄 (dataColIndex)
+                    if (!isNaN(val)) {
+                        if (!isNaN(min) && val < min) {
+                            colorMark[dataColIndex] = 'low'; // 標記 F 欄 或 G 欄
+                        } else if (!isNaN(max) && val > max) {
+                            colorMark[dataColIndex] = 'high'; // 標記 F 欄 或 G 欄
+                        }
+                    }
+                } // --- 特殊規則結束 ---
+
+
+                // --- 處理剩下的"一般"規則 [8, 6, 7], [9, 8, 9] ... ---
+                [[8, 6, 7], [9, 8, 9], [10, 10, 11], [11, 12, 13]].forEach(([col, low, high]) => {
                     const val = parseFloat(item[col]);
                     const min = parseFloat(refRow[low]);
                     const max = parseFloat(refRow[high]);
