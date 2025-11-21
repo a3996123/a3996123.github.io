@@ -1,263 +1,451 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>耐衝計算器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>耐衝計算器（三合一）</title>
+
+    <!-- Bulma + Font Awesome，跟 spec_viewer 一樣 -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css"
+    />
+    <script
+        defer
+        src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"
+    ></script>
+
     <style>
-        /* 來自 index.html 的基礎樣式 */
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); 
-            min-height: 100vh; 
-            box-sizing: border-box; 
-            display: flex; /* Added for centering */
-            justify-content: center; /* Added for centering */
-            align-items: center; /* Added for centering */
-        }
-        .glass-container { 
-            background: rgba(255, 255, 255, 0.25); 
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1); 
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.18); 
-            border-radius: 16px; 
-            padding: 20px; 
-        }
-        .container { 
-            /* 調整 max-width 以更好地容納兩個計算器 */
-            max-width: 900px; 
-            margin: auto; 
-        }
-        
-        h2 { 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3); 
-            padding-bottom: 10px; 
-            color: #333; 
-            margin-top: 0; /* 確保 h2 頂部無多餘邊距 */
-            margin-bottom: 30px; 
-            text-align: center; /* 讓標題置中 */
-        }
-        
-        label { 
-            color: #333; 
-            font-weight: 500; 
-            display: block; 
-            margin-bottom: 8px; 
+        /* === 核心底色 & 字型：沿用 spec_viewer 風格 === */
+        html, body {
+            height: 100%;
+            background: linear-gradient(120deg, #f0f4ff, #e6f7ff);
         }
 
-        input[type="number"], input[type="text"] { 
-            width: 100%; 
-            padding: 12px; 
-            box-sizing: border-box; 
-            background: rgba(255, 255, 255, 0.5); 
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-            border-radius: 8px; 
-            color: #333; 
-            font-size: 16px; 
-        }
-        
-        input::placeholder { color: #555; }
-
-        input[readonly] {
-            background-color: rgba(255, 255, 255, 0.3); /* 輕微變暗以區分 */
-            color: #555;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, "Noto Sans TC", "微軟正黑體", sans-serif;
         }
 
-        button { 
-            background-color: #007bff; 
-            color: white; 
-            border: none; 
-            cursor: pointer; 
-            padding: 12px; 
-            font-size: 16px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-            transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-            width: 100%; /* 確保按鈕滿寬 */
-            margin-top: 10px; /* 與上方輸入框保持間距 */
-        }
-        
-        button:hover { 
-            background-color: #0056b3; 
-            transform: translateY(-3px); 
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); 
-        }
-
-        /* 來自 耐衝計算.html 的佈局樣式 (已整合) */
-        .main-wrapper {
+        .main-layout {
+            min-height: 100vh;
             display: flex;
-            flex-direction: row; /* 預設: 並排 */
-            justify-content: center;
-            align-items: flex-start; /* 頂部對齊 */
-            gap: 40px; /* 計算器之間的間距 */
-            width: 100%;
+            flex-direction: column;
         }
 
-        /* 替換原本的 .container 樣式 */
-        .calculator-box {
-            width: 100%;
-            padding: 20px;
-            /* 使用類似 searchResults 的輕微背景 */
-            background: rgba(255, 255, 255, 0.2); 
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            flex: 1; /* 允許容器等寬 */
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
         }
 
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
+        /* 卡片樣式：跟 spec_viewer 一致 */
+        .card {
+            border-radius: 18px;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+            height: 100%;
         }
 
-        /* 來自 耐衝計算.html 的響應式樣式 (已整合) */
-        @media (max-width: 992px) {
-            .main-wrapper {
-                flex-direction: column; /* 垂直堆疊 */
-                align-items: center; /* 置中 */
-            }
-            .calculator-box {
-                width: 100%;
-                max-width: 420px; /* 在行動裝置上限制寬度 */
-            }
+        .card-header {
+            border-bottom: none;
+            background: linear-gradient(
+                135deg,
+                rgba(59, 130, 246, 0.12),
+                rgba(56, 189, 248, 0.08)
+            );
+        }
+
+        .card-header-title {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .tag.badge-pill {
+            border-radius: 999px;
+            padding-inline: 0.85em;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .is-soft-blue { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; }
+        .is-soft-green { background: rgba(16, 185, 129, 0.12); color: #047857; }
+        .is-soft-orange { background: rgba(251, 146, 60, 0.12); color: #c05621; }
+
+        .input,
+        .button {
+            border-radius: 999px;
+            box-shadow: none;
+        }
+
+        .input {
+            border: 1px solid #e5e7eb;
+        }
+
+        .button.is-primary {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+            border: none;
+        }
+
+        /* readOnly 欄位視覺區隔 */
+        input[readonly] {
+            background-color: rgba(230, 240, 255, 0.5);
+            color: #1d4ed8;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* 桌機橫排、手機直排：用 Bulma columns 控制 */
+        /* Bulma 預設：桌機 is-4 會三欄橫排，手機自動直排，這裡只微調間距 */
+        @media (max-width: 768px) {
+            .card { margin-bottom: 1rem; }
         }
     </style>
 </head>
 <body>
-
-    <div class="container glass-container">
-        <div class="main-wrapper">
-            
-            <div class="calculator-box">
-                <h2>耐衝計算 I</h2>
-                <div class="input-group">
-                    <label for="inputField1">輸入值：</label>
-                    <input type="number" id="inputField1" onkeydown="if(event.key==='Enter') calculate()" placeholder="(輸入新耐衝kg-cm的數值)">
-                </div>
-                <div class="input-group">
-                    <label>舊耐衝(kg-cm)：</label>
-                    <input type="text" id="result1_1" readonly>
-                </div>
-                <div class="input-group">
-                    <label>新耐衝(kg-cm/cm)：</label>
-                    <input type="text" id="result1_2" readonly>
-                </div>
-                <div class="input-group">
-                    <label>新耐衝(kg-cm/cm²)：</label>
-                    <input type="text" id="result1_3" readonly>
-                </div>
-            </div>
-
-            <div class="calculator-box">
-                <h2>耐衝計算 II</h2>
-                <div class="input-group">
-                    <label for="inputField2">輸入值：</label>
-                    <input type="number" id="inputField2" onkeydown="if(event.key==='Enter') calculate()" placeholder="(輸入舊耐衝kg-cm的數值)">
-                </div>
-                 <div class="input-group">
-                    <label for="output4">舊耐衝(kg-cm)：</label>
-                    <input type="text" id="output4" readonly>
-                </div>
-                <div class="input-group">
-                    <label for="output1">新耐衝(kg-cm)：</label>
-                    <input type="text" id="output1" readonly>
-                </div>
-                <div class="input-group">
-                    <label for="output2">新耐衝(kg-cm/cm)：</label>
-                    <input type="text" id="output2" readonly>
-                </div>
-                <div class="input-group">
-                    <label for="output3">新耐衝(kg-cm/cm²)：</label>
-                    <input type="text" id="output3" readonly>
-                </div>
-                <button onclick="calculate()">計算</button>
-            </div>
+<div class="main-layout">
+    <!-- 簡單標題列（可依需要改掉） -->
+    <section class="section pb-2">
+        <div class="container">
+            <h1 class="title is-4 has-text-centered">
+                <span class="icon-text">
+                    <span class="icon has-text-info">
+                        <i class="fas fa-bolt"></i>
+                    </span>
+                    <span>耐衝計算器（三合一）</span>
+                </span>
+            </h1>
+            <p class="has-text-centered has-text-grey is-size-7">
+                桌機：橫向三欄排列 ／ 手機：直向一欄排列
+            </p>
         </div>
-    </div>
+    </section>
 
-    <script>
-        const lookupTable = {
-            29.25: 77, 28.80: 78, 28.34: 79, 27.88: 80, 27.42: 81, 26.99: 82, 26.49: 83, 26.02: 84,
-            25.56: 85, 25.09: 86, 24.62: 87, 24.16: 88, 23.69: 89, 23.22: 90, 22.75: 91, 22.29: 92,
-            21.82: 93, 21.35: 94, 20.88: 95, 20.42: 96, 19.95: 97, 19.49: 98, 19.03: 99, 18.56: 100,
-            18.10: 101, 17.65: 102, 17.19: 103, 16.73: 104, 16.28: 105, 15.83: 106, 15.38: 107, 14.93: 108,
-            14.49: 109, 14.05: 110, 13.61: 111, 13.18: 112, 12.74: 113, 12.31: 114, 11.89: 115, 11.47: 116,
-            11.05: 117, 10.63: 118, 10.22: 119, 9.81: 120, 9.41: 121, 9.01: 122, 8.62: 123, 8.24: 124,
-            7.84: 125, 7.46: 126, 7.08: 127, 6.71: 128, 6.35: 129, 5.99: 130, 5.63: 131, 5.28: 132,
-            4.93: 133, 4.59: 134, 4.26: 135, 3.93: 136, 3.61: 137, 3.29: 138, 2.98: 139, 2.68: 140,
-            2.38: 141, 2.09: 142, 1.81: 143, 1.53: 144, 1.26: 145, 0.99: 146, 0.73: 147, 0.48: 148,
-            0.24: 149, 0.00: 150
-        };
+    <section class="main-content">
+        <div class="container">
+            <div class="columns is-variable is-5 is-multiline">
+                <!-- 計算器 1：kg-cm/cm² 對照表 -->
+                <div class="column is-4-desktop is-12-tablet">
+                    <div class="card">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                <span class="icon mr-2 has-text-info">
+                                    <i class="fas fa-table"></i>
+                                </span>
+                                耐衝計算器（kg-cm/cm² 對照表）
+                            </p>
+                            <div class="card-header-icon">
+                                <span class="tag badge-pill is-soft-blue">查表</span>
+                            </div>
+                        </header>
+                        <div class="card-content">
+                            <div class="field">
+                                <label class="label is-small">
+                                    輸入數值
+                                    <span class="tag is-light is-rounded is-size-7 ml-1">
+                                        kg-cm/cm²
+                                    </span>
+                                </label>
+                                <div class="control">
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        id="inputVal"
+                                        class="input"
+                                        placeholder="請輸入..."
+                                        onkeydown="if(event.key==='Enter') calculateTable()"
+                                    />
+                                </div>
+                            </div>
 
-        function findClosestKey(value) {
-            let minDiff = Infinity;
-            let closestKey = null;
-            for (const key in lookupTable) {
-                const diff = Math.abs(key - value);
-                if (diff < minDiff) {
-                    minDiff = diff;
-                    closestKey = key;
-                }
+                            <div class="field">
+                                <label class="label is-small">
+                                    計算結果
+                                    <span class="tag is-light is-rounded is-size-7 ml-1">
+                                        對應值
+                                    </span>
+                                </label>
+                                <div class="control">
+                                    <input
+                                        type="text"
+                                        id="tableResult"
+                                        class="input"
+                                        readonly
+                                        placeholder="等待計算..."
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="field mt-4">
+                                <button class="button is-primary is-fullwidth"
+                                        onclick="calculateTable()">
+                                    <span class="icon"><i class="fas fa-play"></i></span>
+                                    <span>開始計算</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 計算器 2：耐衝計算 I -->
+                <div class="column is-4-desktop is-12-tablet">
+                    <div class="card">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                <span class="icon mr-2 has-text-success">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </span>
+                                耐衝計算 I
+                            </p>
+                            <div class="card-header-icon">
+                                <span class="tag badge-pill is-soft-green">新→舊</span>
+                            </div>
+                        </header>
+                        <div class="card-content">
+                            <div class="field">
+                                <label class="label is-small">輸入值（新耐衝 kg-cm）</label>
+                                <div class="control">
+                                    <input
+                                        type="number"
+                                        id="inputField1"
+                                        class="input"
+                                        placeholder="輸入新耐衝 kg-cm"
+                                        onkeydown="if(event.key==='Enter') calculateI()"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label is-small">舊耐衝 (kg-cm)</label>
+                                <div class="control">
+                                    <input type="text" id="result1_1" class="input" readonly>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label is-small">新耐衝 (kg-cm/cm)</label>
+                                <div class="control">
+                                    <input type="text" id="result1_2" class="input" readonly>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label is-small">新耐衝 (kg-cm/cm²)</label>
+                                <div class="control">
+                                    <input type="text" id="result1_3" class="input" readonly>
+                                </div>
+                            </div>
+
+                            <div class="field mt-4">
+                                <button class="button is-primary is-fullwidth"
+                                        onclick="calculateI()">
+                                    <span class="icon"><i class="fas fa-play"></i></span>
+                                    <span>開始計算</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 計算器 3：耐衝計算 II -->
+                <div class="column is-4-desktop is-12-tablet">
+                    <div class="card">
+                        <header class="card-header">
+                            <p class="card-header-title">
+                                <span class="icon mr-2 has-text-warning">
+                                    <i class="fas fa-retweet"></i>
+                                </span>
+                                耐衝計算 II
+                            </p>
+                            <div class="card-header-icon">
+                                <span class="tag badge-pill is-soft-orange">舊→新</span>
+                            </div>
+                        </header>
+                        <div class="card-content">
+                            <div class="field">
+                                <label class="label is-small">輸入值（舊耐衝 kg-cm）</label>
+                                <div class="control">
+                                    <input
+                                        type="number"
+                                        id="inputField2"
+                                        class="input"
+                                        placeholder="輸入舊耐衝 kg-cm"
+                                        onkeydown="if(event.key==='Enter') calculateII()"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label is-small">舊耐衝 (kg-cm) 查表</label>
+                                <div class="control">
+                                    <input type="text" id="output4" class="input" readonly>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label is-small">新耐衝 (kg-cm)</label>
+                                <div class="control">
+                                    <input type="text" id="output1" class="input" readonly>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label is-small">新耐衝 (kg-cm/cm)</label>
+                                <div class="control">
+                                    <input type="text" id="output2" class="input" readonly>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label class="label is-small">新耐衝 (kg-cm/cm²)</label>
+                                <div class="control">
+                                    <input type="text" id="output3" class="input" readonly>
+                                </div>
+                            </div>
+
+                            <div class="field mt-4">
+                                <button class="button is-primary is-fullwidth"
+                                        onclick="calculateII()">
+                                    <span class="icon"><i class="fas fa-play"></i></span>
+                                    <span>開始計算</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- /.columns -->
+        </div>
+    </section>
+</div>
+
+<script>
+    // 共用對照表
+    const lookupTable = {
+        29.25: 77, 28.80: 78, 28.34: 79, 27.88: 80, 27.42: 81, 26.99: 82, 26.49: 83, 26.02: 84,
+        25.56: 85, 25.09: 86, 24.62: 87, 24.16: 88, 23.69: 89, 23.22: 90, 22.75: 91, 22.29: 92,
+        21.82: 93, 21.35: 94, 20.88: 95, 20.42: 96, 19.95: 97, 19.49: 98, 19.03: 99, 18.56: 100,
+        18.10: 101, 17.65: 102, 17.19: 103, 16.73: 104, 16.28: 105, 15.83: 106, 15.38: 107, 14.93: 108,
+        14.49: 109, 14.05: 110, 13.61: 111, 13.18: 112, 12.74: 113, 12.31: 114, 11.89: 115, 11.47: 116,
+        11.05: 117, 10.63: 118, 10.22: 119, 9.81: 120, 9.41: 121, 9.01: 122, 8.62: 123, 8.24: 124,
+        7.84: 125, 7.46: 126, 7.08: 127, 6.71: 128, 6.35: 129, 5.99: 130, 5.63: 131, 5.28: 132,
+        4.93: 133, 4.59: 134, 4.26: 135, 3.93: 136, 3.61: 137, 3.29: 138, 2.98: 139, 2.68: 140,
+        2.38: 141, 2.09: 142, 1.81: 143, 1.53: 144, 1.26: 145, 0.99: 146, 0.73: 147, 0.48: 148,
+        0.24: 149, 0.00: 150
+    };
+
+    // 共用：找最接近 key
+    function findClosestKey(value) {
+        let minDiff = Infinity;
+        let closestKey = null;
+        for (const keyStr in lookupTable) {
+            const keyNum = parseFloat(keyStr);
+            const diff = Math.abs(keyNum - value);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestKey = keyStr;
             }
-            return closestKey;
+        }
+        return closestKey;
+    }
+
+    // 計算器 1：大字版查表
+    function calculateTable() {
+        const inputEl = document.getElementById("inputVal");
+        const tableResultEl = document.getElementById("tableResult");
+        const inputVal = parseFloat(inputEl.value);
+
+        if (isNaN(inputVal)) {
+            tableResultEl.value = "請輸入有效數字";
+            return;
         }
 
-        function calculate() {
-            // --- 耐衝計算 I ---
-            const inputField1 = document.getElementById("inputField1");
-            const inputValue1 = parseFloat(inputField1.value) || 0; // Treat empty as 0
-            
-            // Outputs for Calculator I
-            const result1_1 = document.getElementById("result1_1");
-            const result1_2 = document.getElementById("result1_2");
-            const result1_3 = document.getElementById("result1_3");
+        // 隱藏公式：輸入值 * 0.317 + 2.2
+        const calculatedBase = (inputVal * 0.317) + 2.2;
+        const closestKey = findClosestKey(calculatedBase);
 
-            if (inputField1.value !== "") {
-                const calculatedValue1 = inputValue1 + 2.2;
-                const calculatedValue1_2 = inputValue1 + ((Math.random() - 0.5) * 0.6);
-                const closestKey1 = findClosestKey(calculatedValue1);
-
-                if (closestKey1 !== null) {
-                    result1_1.value = lookupTable[closestKey1] + " (" + closestKey1 + ")";
-                } else {
-                    result1_1.value = "查無對應值";
-                }
-                result1_2.value = (calculatedValue1_2 / 0.317).toFixed(2);
-                result1_3.value = (calculatedValue1_2 / 0.317 / 1.036).toFixed(1);
-            } else {
-                result1_1.value = "";
-                result1_2.value = "";
-                result1_3.value = "";
-            }
-
-
-            // --- 耐衝計算 II ---
-            const inputField2 = document.getElementById("inputField2");
-            const inputValue2 = parseFloat(inputField2.value); // No || 0, let it be NaN if empty
-
-            if (inputField2.value !== "") {
-                const randomOffset = Math.random() * 0.2 - 0.1;
-                const output1 = inputValue2 - 2.2 + randomOffset;
-                const output2 = output1 / 0.317;
-                const output3 = output2 / 1.023;
-                // Use .toFixed() on inputValue2 to match the key format
-                const formattedInput = inputValue2.toFixed(2);
-                const output4 = lookupTable.hasOwnProperty(formattedInput) ? lookupTable[formattedInput] + " (" + formattedInput + ")" : "N/A";
-
-                document.getElementById("output1").value = output1.toFixed(2);
-                document.getElementById("output2").value = output2.toFixed(2);
-                document.getElementById("output3").value = output3.toFixed(1);
-                document.getElementById("output4").value = output4;
-            } else {
-                document.getElementById("output1").value = "";
-                document.getElementById("output2").value = "";
-                document.getElementById("output3").value = "";
-                document.getElementById("output4").value = "";
-            }
+        if (closestKey !== null) {
+            tableResultEl.value = `${lookupTable[closestKey]}(${closestKey})`;
+        } else {
+            tableResultEl.value = "無對應值";
         }
-    </script>
+    }
 
+    // 計算器 2：耐衝計算 I
+    function calculateI() {
+        const inputField1 = document.getElementById("inputField1");
+        const result1_1 = document.getElementById("result1_1");
+        const result1_2 = document.getElementById("result1_2");
+        const result1_3 = document.getElementById("result1_3");
+
+        if (inputField1.value === "") {
+            result1_1.value = "";
+            result1_2.value = "";
+            result1_3.value = "";
+            return;
+        }
+
+        const inputValue1 = parseFloat(inputField1.value);
+        if (isNaN(inputValue1)) {
+            result1_1.value = "請輸入有效數字";
+            result1_2.value = "";
+            result1_3.value = "";
+            return;
+        }
+
+        const calculatedValue1 = inputValue1 + 2.2;
+        const calculatedValue1_2 = inputValue1 + ((Math.random() - 0.5) * 0.6);
+        const closestKey1 = findClosestKey(calculatedValue1);
+
+        if (closestKey1 !== null) {
+            result1_1.value = lookupTable[closestKey1] + " (" + closestKey1 + ")";
+        } else {
+            result1_1.value = "查無對應值";
+        }
+
+        result1_2.value = (calculatedValue1_2 / 0.317).toFixed(2);
+        result1_3.value = (calculatedValue1_2 / 0.317 / 1.036).toFixed(1);
+    }
+
+    // 計算器 3：耐衝計算 II
+    function calculateII() {
+        const inputField2 = document.getElementById("inputField2");
+        const output1El = document.getElementById("output1");
+        const output2El = document.getElementById("output2");
+        const output3El = document.getElementById("output3");
+        const output4El = document.getElementById("output4");
+
+        if (inputField2.value === "") {
+            output1El.value = "";
+            output2El.value = "";
+            output3El.value = "";
+            output4El.value = "";
+            return;
+        }
+
+        const inputValue2 = parseFloat(inputField2.value);
+        if (isNaN(inputValue2)) {
+            output1El.value = "請輸入有效數字";
+            output2El.value = "";
+            output3El.value = "";
+            output4El.value = "";
+            return;
+        }
+
+        const randomOffset = Math.random() * 0.2 - 0.1;
+        const output1 = inputValue2 - 2.2 + randomOffset; // 新耐衝 kg-cm
+        const output2 = output1 / 0.317;                  // kg-cm/cm
+        const output3 = output2 / 1.023;                  // kg-cm/cm²
+
+        const formattedInput = inputValue2.toFixed(2);
+        const output4 = lookupTable.hasOwnProperty(formattedInput)
+            ? lookupTable[formattedInput] + " (" + formattedInput + ")"
+            : "N/A";
+
+        output1El.value = output1.toFixed(2);
+        output2El.value = output2.toFixed(2);
+        output3El.value = output3.toFixed(1);
+        output4El.value = output4;
+    }
+</script>
 </body>
 </html>
