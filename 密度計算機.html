@@ -45,14 +45,18 @@
             font-size: 2rem;
         }
 
-        /* 總計密度卡片樣式 */
+        /* 總計密度卡片樣式 (已修改) */
         .totalDensityContainer {
             background-color: #ffffff;
             padding: 20px 30px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* 稍微加深陰影以突顯層次 */
             margin-bottom: 24px;
             text-align: center;
+            /* --- 以下為新增的程式碼 --- */
+            position: sticky; /* 讓元素可以固定 */
+            top: 0;           /* 固定在畫面的最頂端 */
+            z-index: 1000;    /* 確保它顯示在最上層，不會被其他內容覆蓋 */
         }
         
         .totalDensityContainer span {
